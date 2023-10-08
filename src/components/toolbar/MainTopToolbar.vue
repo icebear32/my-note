@@ -1,11 +1,14 @@
 <script setup>
-import { DarkModeRound, NotificationsNoneOutlined } from '@vicons/material'
+import { NotificationsNoneOutlined, EmailOutlined, LockOpenOutlined } from '@vicons/material'
 import { useThemeStore } from '@/stores/themeStore'
 import { storeToRefs } from 'pinia'
 
 const themeStore = useThemeStore()
 const { theme, isDarkTheme } = storeToRefs(themeStore)
 const { changeTheme } = themeStore
+
+// 是否展示登录对话框
+const showLoginModal = ref(false)
 </script>
 
 <template>
@@ -34,7 +37,50 @@ const { changeTheme } = themeStore
             </n-button>
 
             <!-- 登录按钮 -->
-            <n-button tertiary type="primary">登录</n-button>
+            <n-button tertiary type="primary" @click="showLoginModal = true">登录</n-button>
         </n-space>
     </n-space>
+
+    <n-modal v-model:show="showLoginModal" transform-origin="center" :close-on-esc="false">
+        <div style="width: 400px;">
+            <n-card>
+                <n-space justify="space-between" align="center">
+                    <h2>登录</h2>
+                    <n-text depth="3">
+                        暂无账号？
+                        <n-button text type="info">前往注册</n-button>
+                    </n-text>
+                </n-space>
+                
+                <!-- 登录表单 -->
+                <n-form>
+                    <n-form-item label="邮箱号码">
+                        <n-input placeholder="请输入邮箱号码">
+                            <template #prefix>
+                                <n-icon :component="EmailOutlined" />
+                            </template>
+                        </n-input>
+                    </n-form-item>
+                    <n-form-item label="密码">
+                        <n-input placeholder="请输入密码" type="password">
+                            <template #prefix>
+                                <n-icon :component="LockOpenOutlined" />
+                            </template>
+                        </n-input>
+                    </n-form-item>
+                    <n-form-item :show-label="false">
+                        <n-checkbox>同意本公司的</n-checkbox>
+                        <n-button text type="info">《条款与协议》</n-button>
+                    </n-form-item>
+                    <n-form-item :show-label="false">
+                        <n-button block type="success">登录</n-button>
+                    </n-form-item>
+                </n-form>
+
+                <n-space justify="center" style="cursor: pointer;">
+                    <n-text depth="3">忘记密码</n-text>
+                </n-space>
+            </n-card>
+        </div>
+    </n-modal>
 </template>
