@@ -26,7 +26,12 @@ const showLoginModalCard = computed(() => {
         default:
             return RegisterSuccess
     }
-}) 
+})
+
+// 改变登录模态框显示的卡片
+const changeLoginModalStep = step => {
+    loginModalStep.value = step
+}
 </script>
 
 <template>
@@ -63,7 +68,7 @@ const showLoginModalCard = computed(() => {
         <div style="width: 430px;">
             <Transition name="bounce" mode="out-in">
                 <!-- 根据内容显示（loginModalStep.value）登录、注册、注册成功的卡片 -->
-                <component :is="showLoginModalCard" />
+                <component :is="showLoginModalCard" @changeStep="changeLoginModalStep" />
             </Transition>
         </div>
     </n-modal>

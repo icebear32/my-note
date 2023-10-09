@@ -2,6 +2,9 @@
 import { EmailOutlined, LockOpenOutlined, FormatColorResetFilled } from '@vicons/material'
 import { ref } from 'vue'
 
+// 自定义事件
+const emits = defineEmits(['changeStep'])
+
 // 注册表单值
 const registerFormValue = ref({
     email: '',
@@ -109,7 +112,7 @@ const getEmailVC = () => {
             <h2>注册</h2>
             <n-text depth="3">
                 已有账号？
-                <n-button text type="info">前往登录</n-button>
+                <n-button text type="info" @click="emits('changeStep', 1)">前往登录</n-button>
             </n-text>
         </n-space>
 

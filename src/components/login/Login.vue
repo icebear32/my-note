@@ -2,6 +2,9 @@
 import { EmailOutlined, LockOpenOutlined, FormatColorResetFilled } from '@vicons/material'
 import { ref } from 'vue'
 
+// 自定义事件
+const emits = defineEmits(['changeStep'])
+
 // 登录表单值
 const loginFormValue = ref({
     email: '',
@@ -60,7 +63,7 @@ const toLogin = (e) => {
             <h2>登录</h2>
             <n-text depth="3">
                 暂无账号？
-                <n-button text type="info">前往注册</n-button>
+                <n-button text type="info" @click="emits('changeStep', 2)">前往注册</n-button>
             </n-text>
         </n-space>
 
