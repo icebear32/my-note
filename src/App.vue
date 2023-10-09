@@ -2,6 +2,7 @@
 import MainTopToolbar from '@/components/toolbar/MainTopToolbar.vue'
 import { useThemeStore } from '@/stores/themeStore'
 import { storeToRefs } from 'pinia'
+import LoginModal from '@/components/login/LoginModal.vue'
 
 const themeStore = useThemeStore()
 const { theme } = storeToRefs(themeStore)
@@ -25,6 +26,9 @@ const { theme } = storeToRefs(themeStore)
         </n-layout-content>
       </n-layout>
     </n-layout>
+
+    <!-- 登录模态框 -->
+    <LoginModal />
   </n-config-provider>
 </template>
 

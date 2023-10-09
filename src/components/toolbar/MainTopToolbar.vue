@@ -1,37 +1,18 @@
 <script setup>
 import { NotificationsNoneOutlined } from '@vicons/material'
 import { useThemeStore } from '@/stores/themeStore'
-import { storeToRefs } from 'pinia'
-import Login from '@/components/login/Login.vue'
-import Register from '@/components/login/Register.vue'
-import RegisterSuccess from '@/components/login/RegisterSuccess.vue'
+import { useLoginModalStore } from "../../stores/loginModalStore"
+import { storeToRefs } from "pinia"
 
 const themeStore = useThemeStore()
 const { theme, isDarkTheme } = storeToRefs(themeStore)
 const { changeTheme } = themeStore
 
-// 是否展示登录对话框
-const showLoginModal = ref(false)
+// 登录模态框共享资源的对象
+const loginModalStore = useLoginModalStore()
 
-// 登录模态框显示的内容（1：登录，2：注册，3：注册成功）
-const loginModalStep = ref(3)
-
-// 登录模态框显示的卡片
-const showLoginModalCard = computed(() => {
-    switch (loginModalStep.value) {
-        case 1:
-            return Login
-        case 2:
-            return Register
-        default:
-            return RegisterSuccess
-    }
-})
-
-// 改变登录模态框显示的卡片
-const changeLoginModalStep = step => {
-    loginModalStep.value = step
-}
+// 改变登录模态框显示的状态
+const { changeLoginModalShowStatus } = loginModalStore
 </script>
 
 <template>
@@ -60,38 +41,7 @@ const changeLoginModalStep = step => {
             </n-button>
 
             <!-- 登录按钮 -->
-            <n-button tertiary type="primary" @click="showLoginModal = true">登录</n-button>
+            <n-button tertiary type="primary" @click="changeLoginModalShowStatus(true)">登录</n-button>
         </n-space>
     </n-space>
-
-    <n-modal v-model:show="showLoginModal" transform-origin="center" :close-on-esc="false">
-        <div style="width: 430px;">
-            <Transition name="bounce" mode="out-in">
-                <!-- 根据内容显示（loginModalStep.value）登录、注册、注册成功的卡片 -->
-                <component :is="showLoginModalCard" @changeStep="changeLoginModalStep" />
-            </Transition>
-        </div>
-    </n-modal>
 </template>
-
-<style>
-.bounce-enter-active {
-    animation: bounce-in 0.5s;
-}
-
-.bounce-leave-active {
-    animation: bounce-in 0.5s reverse;
-}
-
-@keyframes bounce-in {
-    0% {
-        transform: scale(0);
-    }
-    50% {
-        transform: scale(1.25);
-    }
-    100% {
-        transform: scale(1);
-    }
-}
-</style>
