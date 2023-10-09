@@ -18,6 +18,7 @@ const registerFormRules = {
             trigger: ["input", "blur"]
         },
         {
+            key: 'mail',
             message: "请正确输入邮箱格式",
             trigger: ["input", "blur"],
             validator: (rule, value) => {
@@ -51,6 +52,54 @@ const toRegister = (e) => {
         }
     })
 }
+
+// ----- 获取验证码 -----
+// 按钮状态
+const btnCountDown = ref({
+    text: '获取验证码', // 按钮显示的文本
+    time: 60, // 还有多少秒结束
+    disabled: false, // 是否禁用按钮
+    clock: null
+})
+
+// 按钮倒计时
+const buttonCountDown = () => {
+    btnCountDown.value.clock = setInterval(()=>{
+        if (btnCountDown.value.time === 1) {
+            // 不需要倒计时 - 重置获取验证码的状态
+            resetButtonCountDownStatus()
+        } else {
+            // 需要倒计时
+            btnCountDown.value.disabled = true //禁用按钮
+            btnCountDown.value.time-- // 时间递减
+            btnCountDown.value.text = btnCountDown.value.time + '秒重新获取' // 按钮显示的文本
+        }
+    }, 1000)
+}
+
+// 重置获取验证码的状态
+const resetButtonCountDownStatus = () => {
+    // 清除任务
+    clearInterval(btnCountDown.value.clock)
+
+    btnCountDown.value.text = "获取验证码"
+    btnCountDown.value.time = 60
+    btnCountDown.value.disabled = false
+}
+
+// 获取验证码
+const getEmailVC = () => {
+    registerFormRef.value?.validate(
+        (errors) => {
+            if (!errors) {
+                buttonCountDown() //按钮倒计时
+            }
+        },
+        (rule) => {
+            return rule?.key === "mail"
+        }
+    )
+}
 </script>
 
 <template>
@@ -79,7 +128,9 @@ const toRegister = (e) => {
                     <n-input placeholder="请输入验证码" v-model:value="registerFormValue.vc" />
                 </n-form-item-gi>
                 <n-form-item-gi>
-                    <n-button block secondary type="success">获取验证码</n-button>
+                    <n-button block secondary type="success" :disabled="btnCountDown.disabled" @click="getEmailVC">
+                        {{ btnCountDown.text }}
+                    </n-button>
                 </n-form-item-gi>
             </n-grid>
 
