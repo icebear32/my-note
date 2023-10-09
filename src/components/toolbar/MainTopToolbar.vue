@@ -4,6 +4,7 @@ import { useThemeStore } from '@/stores/themeStore'
 import { storeToRefs } from 'pinia'
 import Login from '@/components/login/Login.vue'
 import Register from '@/components/login/Register.vue'
+import RegisterSuccess from '@/components/login/RegisterSuccess.vue'
 
 const themeStore = useThemeStore()
 const { theme, isDarkTheme } = storeToRefs(themeStore)
@@ -13,7 +14,7 @@ const { changeTheme } = themeStore
 const showLoginModal = ref(false)
 
 // 登录模态框显示的内容（1：登录，2：注册，3：注册成功）
-const loginModalStep = ref(2)
+const loginModalStep = ref(3)
 </script>
 
 <template>
@@ -47,11 +48,13 @@ const loginModalStep = ref(2)
     </n-space>
 
     <n-modal v-model:show="showLoginModal" transform-origin="center" :close-on-esc="false">
-        <div style="width: 400px;">
+        <div style="width: 430px;">
             <!-- 登录卡片 -->
             <Login v-if="loginModalStep === 1" />
             <!-- 注册卡片 -->
             <Register v-if="loginModalStep === 2" />
+            <!-- 注册成功卡片 -->
+            <RegisterSuccess v-else />
         </div>
     </n-modal>
 </template>
