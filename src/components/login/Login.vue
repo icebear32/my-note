@@ -1,6 +1,7 @@
 <script setup>
 import { EmailOutlined, LockOpenOutlined, FormatColorResetFilled } from '@vicons/material'
 import { ref } from 'vue'
+import { noteBaseRequest } from "@/request/note_request"
 
 // 自定义事件
 const emits = defineEmits(['changeStep'])
@@ -48,9 +49,21 @@ const loginFormRef = ref(null)
 // 点击登录按钮去登录
 const toLogin = (e) => {
     e.preventDefault()
-    loginFormRef.value?.validate((errors) => {
+    loginFormRef.value?.validate(async (errors) => {
         if (!errors) {
-            alert('登录成功')
+            // 发送登录请求
+            const { data: responseData } = await noteBaseRequest.post(
+                "/user/login/email/password",
+                {
+                    email: loginFormValue.value.email,
+                    password: loginFormValue.value.password 
+                }
+            ).catch(() => {
+                // 发送请求失败（404，500，400，...）
+                throw "发送登录请求失败"
+            })
+            // 得到服务器返回的数据，进行处理
+            console.log(responseData)
         }
     })
 }
