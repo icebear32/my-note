@@ -2,6 +2,10 @@
 import { EmailOutlined, LockOpenOutlined, FormatColorResetFilled } from '@vicons/material'
 import { ref } from 'vue'
 import { noteBaseRequest } from "@/request/note_request"
+import { useMessage } from 'naive-ui'
+
+// 消息对象
+const message = useMessage()
 
 // 自定义事件
 const emits = defineEmits(['changeStep'])
@@ -60,10 +64,16 @@ const toLogin = (e) => {
                 }
             ).catch(() => {
                 // 发送请求失败（404，500，400，...）
+                message.error("发送登录请求失败") // 发送登录请求失败的通知
                 throw "发送登录请求失败"
             })
             // 得到服务器返回的数据，进行处理
             console.log(responseData)
+            if (responseData.success) {
+                message.success(responseData.message) // 显示登录成功的通知 
+            } else {
+                message.error(responseData.message) // 显示登录失败的通知 
+            }
         }
     })
 }
