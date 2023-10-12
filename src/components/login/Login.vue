@@ -52,26 +52,36 @@ const loginFormRules = {
 // 登录表单引用
 const loginFormRef = ref(null)
 
+// 禁用登录按钮
+const loginBtnDisabled = ref(null)
+
 // 点击登录按钮去登录
 const toLogin = (e) => {
     e.preventDefault()
     loginFormRef.value?.validate(async (errors) => {
         if (!errors) {
             loadingBar.start() // 加载条开始
+            loginBtnDisabled.value = true // 禁用登录按钮
 
             // 发送登录请求
             const { data: responseData } = await noteBaseRequest.post(
                 "/user/login/email/password",
                 {
                     email: loginFormValue.value.email,
-                    password: loginFormValue.value.password 
+                    password: loginFormValue.value.password
                 }
             ).catch(() => {
                 // 发送请求失败（404，500，400，...）
                 loadingBar.error() // 加载条异常
                 message.error("发送登录请求失败") // 发送登录请求失败的通知
+
+                setTimeout(() => {
+                    loginBtnDisabled.value = false // 解除禁用登录按钮
+                }, 2500)
+
                 throw "发送登录请求失败"
             })
+
             // 得到服务器返回的数据，进行处理
             console.log(responseData)
             if (responseData.success) {
@@ -81,6 +91,11 @@ const toLogin = (e) => {
                 loadingBar.error() // 加载条异常结束 
                 message.error(responseData.message) // 显示登录失败的通知 
             }
+
+                        
+            setTimeout(() => {
+                loginBtnDisabled.value = false // 解除禁用登录按钮
+            }, 2500)
         }
     })
 }
@@ -118,7 +133,7 @@ const toLogin = (e) => {
                 <n-button text type="info">《条款与协议》</n-button>
             </n-form-item>
             <n-form-item :show-label="false">
-                <n-button block type="success" @click="toLogin">登录</n-button>
+                <n-button block type="success" :disabled="loginBtnDisabled" @click="toLogin">登录</n-button>
             </n-form-item>
         </n-form>
 
