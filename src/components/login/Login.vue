@@ -3,6 +3,7 @@ import { EmailOutlined, LockOpenOutlined, FormatColorResetFilled } from '@vicons
 import { ref } from 'vue'
 import { noteBaseRequest } from "@/request/note_request"
 import { useMessage, useLoadingBar } from 'naive-ui'
+import { useLoginModalStore } from "@/stores/loginModalStore"
 
 // 消息对象
 const message = useMessage()
@@ -11,6 +12,11 @@ const loadingBar = useLoadingBar()
 
 // 自定义事件
 const emits = defineEmits(['changeStep'])
+
+// 登录模态框共享资源对象
+const loginModalStore = useLoginModalStore()
+// 改变登录模态框显示的状态（函数）
+const { changeLoginModalShowStatus } = loginModalStore
 
 // 登录表单值
 const loginFormValue = ref({
@@ -86,13 +92,15 @@ const toLogin = (e) => {
             console.log(responseData)
             if (responseData.success) {
                 loadingBar.finish() // 加载条结束
-                message.success(responseData.message) // 显示登录成功的通知 
+                message.success(responseData.message) // 显示登录成功的通知
+                changeLoginModalShowStatus(false) // 关闭登录模态框
+                localStorage.setItem("userToken", responseData.data.userToken) // 将查询 redis 中的用户关键词存到本地存储中
             } else {
                 loadingBar.error() // 加载条异常结束 
                 message.error(responseData.message) // 显示登录失败的通知 
             }
 
-                        
+
             setTimeout(() => {
                 loginBtnDisabled.value = false // 解除禁用登录按钮
             }, 2500)
