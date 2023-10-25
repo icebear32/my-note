@@ -1,6 +1,8 @@
 <script setup>
 import { EmailOutlined, LockOpenOutlined, FormatColorResetFilled } from '@vicons/material'
 import { ref } from 'vue'
+import { useMessage, useLoadingBar } from 'naive-ui'
+import { noteBaseRequest } from "@/request/note_request"
 
 // 自定义事件
 const emits = defineEmits(['changeStep'])
@@ -57,6 +59,12 @@ const toRegister = (e) => {
 }
 
 // ----- 获取验证码 -----
+// 消息对象
+const message = useMessage()
+// 加载条对象
+const loadingBar = useLoadingBar()
+// 验证码查询的关键词
+const emailVcKey = ref('')
 // 按钮状态
 const btnCountDown = ref({
     text: '获取验证码', // 按钮显示的文本
@@ -67,7 +75,7 @@ const btnCountDown = ref({
 
 // 按钮倒计时
 const buttonCountDown = () => {
-    btnCountDown.value.clock = setInterval(()=>{
+    btnCountDown.value.clock = setInterval(() => {
         if (btnCountDown.value.time === 1) {
             // 不需要倒计时 - 重置获取验证码的状态
             resetButtonCountDownStatus()
@@ -90,12 +98,39 @@ const resetButtonCountDownStatus = () => {
     btnCountDown.value.disabled = false
 }
 
+
 // 获取验证码
 const getEmailVC = () => {
     registerFormRef.value?.validate(
-        (errors) => {
+        async (errors) => {
             if (!errors) {
                 buttonCountDown() //按钮倒计时
+                loadingBar.start() // 加载条开始
+                /* 发送获取邮箱注册验证码的请求 */
+                const { data: responseData } = await noteBaseRequest.get(
+                    "mail/register/vc",
+                    {
+                        params: {
+                            email: registerFormValue.value.email
+                        }
+                    }
+                ).catch(() => {
+                    // 发送请求失败（404，500，400，...）
+                    loadingBar.error() // 加载条异常
+                    message.error("发送登录请求失败") // 发送验证码请求失败的通知
+                })
+
+                // 得到服务器返回的数据，进行处理
+                console.log(responseData)
+                if (responseData.success) {
+                    loadingBar.finish() // 加载条结束
+                    message.success(responseData.message) // 显示发送成功的通知
+                    emailVcKey.value = responseData.data
+                } else {
+                    loadingBar.error() // 加载条异常结束 
+                    message.error(responseData.message) // 显示发送失败的通知 
+                }
+
             }
         },
         (rule) => {
