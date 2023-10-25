@@ -6,14 +6,12 @@ import { noteBaseRequest } from "@/request/note_request"
 
 // 自定义事件
 const emits = defineEmits(['changeStep'])
-
 // 注册表单值
 const registerFormValue = ref({
     email: '',
     vc: '',
     trim: false
 })
-
 // 注册表单验证规则
 const registerFormRules = {
     email: [
@@ -44,16 +42,62 @@ const registerFormRules = {
         }
     }
 }
-
 // 注册表单引用
 const registerFormRef = ref(null)
-
+// 是否禁用注册按钮
+const registerBtnDisabled = ref(false)
 // 点击注册按钮去注册
 const toRegister = (e) => {
     e.preventDefault()
-    registerFormRef.value?.validate((errors) => {
+    registerFormRef.value?.validate(async (errors) => {
         if (!errors) {
-            alert('注册成功')
+            // 是否获取验证码
+            const vcKey = emailVcKey.value
+            if (vcKey === '' || vcKey === null) {
+                throw message.error("请先获取验证码")
+            }
+            // 判断接收验证码的邮箱是否和注册的邮箱一致
+            const vc_email = vcKey.split(":")[1] // 接收验证码的邮箱
+            const email = registerFormValue.value.email // 注册账号的邮箱
+            if (email !== vc_email) {
+                throw message.error("注册邮箱号发生变化，请重新获取")
+            }
+
+            loadingBar.start() // 加载条开始
+            registerBtnDisabled.value = true // 禁用注册按钮
+
+            // 发送注册请求
+            const { data: responseData } = await noteBaseRequest.post(
+                "/user/register/email",
+                {
+                    email,
+                    vc: registerFormValue.value.vc,
+                    vcKey
+                }
+            ).catch(() => {
+                // 发送请求失败（404，500，400，...）
+                loadingBar.error() // 加载条异常
+                message.error("注册请求失败") // 发送登录请求失败的通知
+
+                setTimeout(() => {
+                    registerBtnDisabled.value = false // 解除禁用注册按钮
+                }, 2500)
+
+                throw "发送注册请求失败"
+            })
+
+            // 得到服务器返回的数据，进行处理
+            console.log(responseData)
+            if (responseData.success) {
+                loadingBar.finish() // 加载条结束
+                emits('changeStep', 3) // 跳转至注册成功界面
+            } else {
+                loadingBar.error() // 加载条异常结束 
+                message.error(responseData.message) // 显示注册失败的通知 
+                setTimeout(() => {
+                    registerBtnDisabled.value = false // 解除禁用注册按钮
+                }, 2500)
+            }
         }
     })
 }
@@ -177,7 +221,7 @@ const getEmailVC = () => {
                 <n-button text type="info">《条款与协议》</n-button>
             </n-form-item>
             <n-form-item :show-label="false">
-                <n-button block type="success" @click="toRegister">注册</n-button>
+                <n-button block type="success" :disabled="registerBtnDisabled" @click="toRegister">注册</n-button>
             </n-form-item>
         </n-form>
     </n-card>
