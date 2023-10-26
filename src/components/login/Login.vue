@@ -146,7 +146,7 @@ const toLogin = (e) => {
                 </n-input>
             </n-form-item>
             <n-form-item label="密码" path="password">
-                <n-input placeholder="请输入密码" type="password" v-model:value="loginFormValue.password">
+                <n-input placeholder="请输入密码" type="password" show-password-on="click" v-model:value="loginFormValue.password">
                     <template #prefix>
                         <n-icon :component="LockOpenOutlined" />
                     </template>

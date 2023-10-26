@@ -1,11 +1,27 @@
 <script setup>
+import { onMounted } from "vue";
 import MainTopToolbar from '@/components/toolbar/MainTopToolbar.vue'
 import { useThemeStore } from '@/stores/themeStore'
 import { storeToRefs } from 'pinia'
 import LoginModal from '@/components/login/LoginModal.vue'
 
+// 主题的共享资源
 const themeStore = useThemeStore()
+// 主题
 const { theme } = storeToRefs(themeStore)
+// 改变主题
+const { changeTheme } = themeStore
+
+onMounted(() => {
+  window.addEventListener('storage', event => {
+    // 监听主题是否发生改变
+    if (event.key === 'theme') {
+      const newTheme = JSON.parse(event.newValue) // 新值
+      // console.log(newTheme)
+      changeTheme(newTheme.isDarkTheme) // 改变主题
+    }
+  })
+})
 </script>
 
 <template>
