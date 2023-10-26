@@ -22,6 +22,26 @@ export const useUserStore = defineStore(
       }
     })
 
+    // 用户昵称
+    const nickName = computed(() => {
+      // 如果用户暂无昵称，则使用默认昵称，否则使用自己的昵称
+      if (nickname.value === null) {
+        return "暂无设置昵称"
+      } else {
+        return nickname.value
+      }
+    })
+
+    // 用户等级
+    const levelInfo = computed(() => {
+      // 如果用户暂无昵称，则使用默认昵称，否则使用自己的昵称
+      if (level.value === 0) {
+        return "会员"
+      } else {
+        return "超级会员"
+      }
+    })
+
     /**
      * 设置用户信息
      * @param {Number} u_id 编号
@@ -40,7 +60,7 @@ export const useUserStore = defineStore(
       time.value = u_time
     }
 
-    return { id, nickname, headPic, level, time, head_image, setUserInfo }
+    return { id, nickname, nickName, headPic, level, levelInfo, time, head_image, setUserInfo }
   },
   {
     persist: {

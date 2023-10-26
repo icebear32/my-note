@@ -17,7 +17,7 @@ const { changeLoginModalShowStatus } = loginModalStore
 
 // 用户的共享数据
 const userStore = useUserStore()
-const { id: user_id, head_image } = storeToRefs(userStore)
+const { id: user_id, head_image, nickName, levelInfo } = storeToRefs(userStore)
 </script>
 
 <template>
@@ -27,7 +27,24 @@ const { id: user_id, head_image } = storeToRefs(userStore)
         </n-text>
         <n-space>
             <!-- 头像 -->
-            <n-avatar round v-if="user_id !== null" size="small" :src="head_image" style="position: relative;top: 3px;" />
+            <n-popover trigger="click" width="260" content-style="padding: 10px">
+                <template #trigger>
+                    <n-button circle :bordered="false">
+                        <n-avatar round v-if="user_id !== null" :src="head_image" />
+                    </n-button>
+                </template>
+                <n-thing :title="nickName">
+                    <template #avatar>
+                        <n-avatar size="large" round :src="head_image" />
+                    </template>
+                    <template #description>
+                        <n-space align="center">
+                            <n-tag size="small" :bordered="false" type="success">{{ levelInfo }}</n-tag>
+                            <n-text depth="3">2099-12-31 到期</n-text>
+                        </n-space>
+                    </template>
+                </n-thing>
+            </n-popover>
 
             <!-- 分割线 -->
             <n-divider v-if="user_id !== null" vertical style="position: relative;top: 5px;" />
