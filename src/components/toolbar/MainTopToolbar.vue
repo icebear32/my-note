@@ -1,8 +1,9 @@
 <script setup>
 import { NotificationsNoneOutlined } from '@vicons/material'
+import { storeToRefs } from "pinia"
 import { useThemeStore } from '@/stores/themeStore'
 import { useLoginModalStore } from "../../stores/loginModalStore"
-import { storeToRefs } from "pinia"
+import { useUserStore } from '../../stores/userStore'
 
 const themeStore = useThemeStore()
 const { theme, isDarkTheme } = storeToRefs(themeStore)
@@ -13,6 +14,10 @@ const loginModalStore = useLoginModalStore()
 
 // 改变登录模态框显示的状态
 const { changeLoginModalShowStatus } = loginModalStore
+
+// 用户的共享数据
+const userStore = useUserStore()
+const { id: user_id, head_image } = storeToRefs(userStore)
 </script>
 
 <template>
@@ -22,11 +27,10 @@ const { changeLoginModalShowStatus } = loginModalStore
         </n-text>
         <n-space>
             <!-- 头像 -->
-            <n-avatar round size="small" src="https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg"
-                style="position: relative;top: 3px;" />
+            <n-avatar round v-if="user_id !== null" size="small" :src="head_image" style="position: relative;top: 3px;" />
 
             <!-- 分割线 -->
-            <n-divider vertical style="position: relative;top: 5px;" />
+            <n-divider v-if="user_id !== null" vertical style="position: relative;top: 5px;" />
 
             <!-- 消息 -->
             <n-badge dot processing type="success" :offset="[-8, 4]">
@@ -41,7 +45,8 @@ const { changeLoginModalShowStatus } = loginModalStore
             </n-button>
 
             <!-- 登录按钮 -->
-            <n-button tertiary type="primary" @click="changeLoginModalShowStatus(true)">登录</n-button>
+            <n-button v-if="user_id === null" tertiary type="primary"
+                @click="changeLoginModalShowStatus(true)">登录</n-button>
         </n-space>
     </n-space>
 </template>

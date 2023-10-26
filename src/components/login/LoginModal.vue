@@ -34,7 +34,7 @@ const changeLoginModalStep = step => {
 </script>
 
 <template>
-    <n-modal v-model:show="showLoginModal" transform-origin="center" :close-on-esc="false">
+    <n-modal v-model:show="showLoginModal" :mask-closable="false" transform-origin="center" :close-on-esc="false">
         <div style="width: 430px;">
             <Transition name="bounce" mode="out-in">
                 <!-- 根据内容显示（loginModalStep.value）登录、注册、注册成功的卡片 -->

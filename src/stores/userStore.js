@@ -1,16 +1,26 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 // 关于登录模态框的全局状态
 export const useUserStore = defineStore(
   "user",
   () => {
     const id = ref(null) // 编号
-    const email = ref('') // 邮箱
-    const nickname = ref('') // 昵称
-    const headPic = ref('') // 头像
-    const level = ref(0) // 等级
-    const time = ref('') // 注册时间
+    const email = ref(null) // 邮箱
+    const nickname = ref(null) // 昵称
+    const headPic = ref(null) // 头像
+    const level = ref(null) // 等级
+    const time = ref(null) // 注册时间
+
+    // 用户头像地址
+    const head_image = computed(() => {
+      // 如果用户暂无图像，则使用默认头像，否则使用自己的图像
+      if (headPic.value === null) {
+        return "https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg"
+      } else {
+        return headPic.value
+      }
+    })
 
     /**
      * 设置用户信息
@@ -30,7 +40,7 @@ export const useUserStore = defineStore(
       time.value = u_time
     }
 
-    return { id, nickname, headPic, level, time, setUserInfo }
+    return { id, nickname, headPic, level, time, head_image, setUserInfo }
   },
   {
     persist: {
