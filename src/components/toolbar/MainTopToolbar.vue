@@ -1,11 +1,12 @@
 <script setup>
-import { h } from 'vue'
+import { h, ref } from 'vue'
 import { storeToRefs } from "pinia"
-import { NIcon } from 'naive-ui'
+import { NIcon, useLoadingBar, useMessage } from 'naive-ui'
 import { NotificationsNoneOutlined, AccountBoxFilled, ManageAccountsFilled, LogOutRound } from '@vicons/material'
 import { useThemeStore } from '@/stores/themeStore'
 import { useLoginModalStore } from "../../stores/loginModalStore"
 import { useUserStore } from '../../stores/userStore'
+import { noteBaseRequest } from '../../request/note_request'
 
 const themeStore = useThemeStore()
 const { theme, isDarkTheme } = storeToRefs(themeStore)
@@ -13,18 +14,25 @@ const { changeTheme } = themeStore
 
 // 登录模态框共享资源的对象
 const loginModalStore = useLoginModalStore()
-
 // 改变登录模态框显示的状态
 const { changeLoginModalShowStatus } = loginModalStore
 
 // 用户的共享数据
 const userStore = useUserStore()
 const { id: user_id, head_image, nickName, levelInfo } = storeToRefs(userStore)
+const { resetUserInfo } = userStore
 
+/* ===== 用户菜单头像 ===== */
 // 读取图标
 const renderIcon = icon => {
     return () => h(NIcon, null, { default: () => h(icon) })
 }
+// 消息对象
+const message = useMessage()
+// 加载条对象
+const loadingBar = useLoadingBar()
+// 是否显示用户菜单弹出信息
+const userMenuShow = ref(false)
 // 用户菜单选项
 const userMenu = [
     {
@@ -43,6 +51,45 @@ const userMenu = [
         icon: renderIcon(LogOutRound)
     }
 ]
+// 用户菜单选项中的回调
+const clickUserMenu = (key) => {
+    // 关闭用户菜单弹出信息
+    userMenuShow.value = false
+
+    if (key === "sign-out") {
+        // 退出登录
+        signOutLogin()
+    }
+}
+// 退出登录
+const signOutLogin = async () => {
+    const userToken = localStorage.getItem("userToken")
+    if (userToken == null) {
+        // 没登陆
+        throw message.error("登录已失效")
+    }
+
+    // 删除 redis 中对应的 key（发送退出登录请求）
+    const { data: responseData } = await noteBaseRequest.get(
+        '/user/login/out',
+        {
+            headers: { userToken }
+        }
+    ).catch(() => {
+        throw message.error("退出登录错误")
+    })
+
+    console.log(responseData)
+    if (responseData.success) {
+        // 用户共享的数据清空
+        resetUserInfo()
+        // userToken 本地存储删除
+        localStorage.removeItem("userToken")
+    } else {
+        // 显示退出登录失败的消息
+        message.error(responseData.message)
+    }
+}
 </script>
 
 <template>
@@ -52,7 +99,7 @@ const userMenu = [
         </n-text>
         <n-space>
             <!-- 头像 -->
-            <n-popover trigger="click" width="260" content-style="padding: 10px">
+            <n-popover v-model:show="userMenuShow" trigger="click" width="260" content-style="padding: 10px">
                 <template #trigger>
                     <n-button circle :bordered="false">
                         <n-avatar round v-if="user_id !== null" :src="head_image" />
@@ -75,7 +122,7 @@ const userMenu = [
                         <!-- 分割线 -->
                         <n-divider style="margin: 5px auto;"></n-divider>
                         <!-- 菜单选项 -->
-                        <n-menu id="user-header-menu" :options="userMenu" />
+                        <n-menu id="user-header-menu" :options="userMenu" :on-update:value="clickUserMenu" />
                     </template>
                 </n-thing>
             </n-popover>
