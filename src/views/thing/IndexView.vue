@@ -1,5 +1,17 @@
 <script setup>
+import { computed } from 'vue'
+import { storeToRefs } from "pinia"
 import { DeleteOutlineRound, ArrowCircleUpRound, ArrowCircleDownRound, EditNoteRound } from '@vicons/material'
+import { useThemeStore } from '@/stores/themeStore'
+
+// 主题 store 对象
+const themeStore = useThemeStore()
+const { isDarkTheme } = storeToRefs(themeStore) // 是否为暗系主题
+
+// 小记已完成图像的影子的颜色
+const thingFinishShadowColor = computed(() => {
+    return isDarkTheme.value ? "#abaaaa" : "#676767"
+})
 </script>
 
 <template>
@@ -18,24 +30,46 @@ import { DeleteOutlineRound, ArrowCircleUpRound, ArrowCircleDownRound, EditNoteR
         <!-- 小记列表容器 -->
         <n-card size="small" :bordered="false" style="margin-top: 20px;">
             <n-space>
-                <n-card class="thing-card-finished" size="small" embedded :bordered="false" title="2023 年开学第一周作业">
+                <n-card embedded class="thing-card-finished" size="small" :bordered="isDarkTheme"
+                    :segmented="{ 'content': true }" title="2023 年开学第一周作业">
                     <template #header-extra>
                         <!-- 删除按钮 -->
-                        <n-button text style="margin-left: 16px;">
-                            <n-icon :size="18" :component="DeleteOutlineRound"></n-icon>
-                        </n-button>
+                        <n-popover>
+                            <template #trigger>
+                                <n-button text style="margin-left: 16px;">
+                                    <n-icon :size="18" :component="DeleteOutlineRound"></n-icon>
+                                </n-button>
+                            </template>
+                            删除
+                        </n-popover>
                         <!-- 置顶按钮 -->
-                        <n-button text style="margin-left: 8px;">
-                            <n-icon :size="18" :component="ArrowCircleUpRound"></n-icon>
-                        </n-button>
+                        <n-popover>
+                            <template #trigger>
+                                <n-button text style="margin-left: 8px;">
+                                    <n-icon :size="18" :component="ArrowCircleUpRound"></n-icon>
+                                </n-button>
+                            </template>
+                            置顶
+                        </n-popover>
                         <!-- 取消置顶按钮 -->
-                        <n-button text style="margin-left: 8px;">
-                            <n-icon :size="18" :component="ArrowCircleDownRound"></n-icon>
-                        </n-button>
+                        <n-popover>
+                            <template #trigger>
+                                <n-button text style="margin-left: 8px;">
+                                    <n-icon :size="18" :component="ArrowCircleDownRound"></n-icon>
+                                </n-button>
+                            </template>
+                            取消置顶
+                        </n-popover>
                         <!-- 编辑按钮 -->
-                        <n-button text style="margin-left: 8px;">
-                            <n-icon :size="18" :component="EditNoteRound"></n-icon>
-                        </n-button>
+                        <n-popover>
+                            <template #trigger>
+                                <n-button text style="margin-left: 8px;">
+                                    <n-icon :size="18" :component="EditNoteRound"></n-icon>
+                                </n-button>
+                            </template>
+                            编辑
+                        </n-popover>
+
                     </template>
                     <!-- 小记标签 -->
                     <template #default>
@@ -71,6 +105,6 @@ import { DeleteOutlineRound, ArrowCircleUpRound, ArrowCircleDownRound, EditNoteR
     background-image: url("@/assets/finish.png");
     background-size: 100px 100px;
     background-repeat: no-repeat;
-    filter: drop-shadow(5px 5px 2px gray);
+    filter: drop-shadow(5px 5px 2px v-bind(thingFinishShadowColor));
 }
 </style>
