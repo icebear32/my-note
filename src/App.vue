@@ -40,8 +40,8 @@ onMounted(() => {
               海淀桥
             </n-layout-sider>
             <!-- 主页面 -->
-            <n-layout-content content-style="padding: 24px;">
-              平山道
+            <n-layout-content>
+              <RouterView />
             </n-layout-content>
           </n-layout>
         </n-layout>

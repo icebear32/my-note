@@ -97,7 +97,7 @@ const signOutLogin = async () => {
         <n-text type="info">
             ich笔记
         </n-text>
-        <n-space>
+        <n-space align="center">
             <!-- 头像 -->
             <n-popover v-model:show="userMenuShow" trigger="click" width="260" content-style="padding: 10px">
                 <template #trigger>
