@@ -2,16 +2,56 @@
 import { computed } from 'vue'
 import { storeToRefs } from "pinia"
 import { DeleteOutlineRound, ArrowCircleUpRound, ArrowCircleDownRound, EditNoteRound } from '@vicons/material'
+import { useMessage, useLoadingBar } from 'naive-ui'
 import { useThemeStore } from '@/stores/themeStore'
+import { getUserToken } from '@/utils/userLoginUtil'
+import { noteBaseRequest } from "@/request/note_request"
 
+// ===== 小记卡片的效果 =====
 // 主题 store 对象
 const themeStore = useThemeStore()
 const { isDarkTheme } = storeToRefs(themeStore) // 是否为暗系主题
-
 // 小记已完成图像的影子的颜色
 const thingFinishShadowColor = computed(() => {
     return isDarkTheme.value ? "#abaaaa" : "#676767"
 })
+
+// ===== 获取小记列表 =====
+// 消息对象
+const message = useMessage()
+// 加载条对象
+const loadingBar = useLoadingBar()
+// 获取小记列表
+const getThingList = async () => {
+    // 判断用户的登录状态
+    const userToken = await getUserToken()
+    // console.log(userToken)
+
+    // 发送获取小记列表请求
+    loadingBar.start() // 加载条开始
+    // 发送登录请求
+    const { data: responseData } = await noteBaseRequest.get(
+        "/thing/list",
+        {
+            headers: { userToken }
+        }
+    ).catch(() => {
+        // 发送请求失败（404，500，400，...）
+        loadingBar.error() // 加载条异常
+        throw message.error("获取小记列表请求失败") // 获取小记列表请求失败的通知
+    })
+    // 得到服务器返回的数据，进行处理
+    console.log(responseData)
+    if (responseData.success) {
+        loadingBar.finish() // 加载条结束
+        console.log(responseData.data)
+    } else {
+        loadingBar.error() // 加载条异常结束 
+        message.error(responseData.message) // 显示请求失败的通知 
+    }
+}
+
+getThingList()
 </script>
 
 <template>
