@@ -68,7 +68,7 @@ import { DeleteOutlineRound, ArrowCircleUpRound, ArrowCircleDownRound, EditNoteR
     bottom: 50%;
     left: 40px;
     transform: translateY(50px);
-    background-image: url();
+    background-image: url("@/assets/finish.png");
     background-size: 100px 100px;
     background-repeat: no-repeat;
     filter: drop-shadow(5px 5px 2px gray);
