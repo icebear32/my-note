@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { storeToRefs } from "pinia"
 import { DeleteOutlineRound, ArrowCircleUpRound, ArrowCircleDownRound, EditNoteRound } from '@vicons/material'
 import { useMessage, useLoadingBar } from 'naive-ui'
@@ -17,6 +17,25 @@ const thingFinishShadowColor = computed(() => {
 })
 
 // ===== 获取小记列表 =====
+// 小记列表
+const things = ref([])
+/**
+ * 小记置顶对象
+ * @param top 是否置顶
+ */
+const thingCardTopIconText = top => {
+    if (top) {
+        return {
+            icon: ArrowCircleDownRound,
+            text: '取消置顶'
+        }
+    } else {
+        return {
+            icon: ArrowCircleUpRound,
+            text: '置顶'
+        }
+    }
+}
 // 消息对象
 const message = useMessage()
 // 加载条对象
@@ -45,6 +64,7 @@ const getThingList = async () => {
     if (responseData.success) {
         loadingBar.finish() // 加载条结束
         console.log(responseData.data)
+        things.value = responseData.data // 小记列表
     } else {
         loadingBar.error() // 加载条异常结束 
         message.error(responseData.message) // 显示请求失败的通知 
@@ -70,8 +90,9 @@ getThingList()
         <!-- 小记列表容器 -->
         <n-card size="small" :bordered="false" style="margin-top: 20px;">
             <n-space>
-                <n-card embedded class="thing-card-finished" size="small" :bordered="isDarkTheme"
-                    :segmented="{ 'content': true }" title="2023 年开学第一周作业">
+                <n-card style="min-width: 220px;" v-for="t in things" :key="t.id" embedded
+                    :class="{ 'thing-card-finished': t.finished }" size="small" :bordered="isDarkTheme"
+                    :segmented="{ 'content': true }" :title="t.title">
                     <template #header-extra>
                         <!-- 删除按钮 -->
                         <n-popover>
@@ -82,24 +103,16 @@ getThingList()
                             </template>
                             删除
                         </n-popover>
-                        <!-- 置顶按钮 -->
+                        <!-- 置顶按钮/取消置顶按钮 -->
                         <n-popover>
                             <template #trigger>
                                 <n-button text style="margin-left: 8px;">
-                                    <n-icon :size="18" :component="ArrowCircleUpRound"></n-icon>
+                                    <n-icon :size="18" :component="thingCardTopIconText(t.top).icon"></n-icon>
                                 </n-button>
                             </template>
-                            置顶
+                            {{ thingCardTopIconText(t.top).text }}
                         </n-popover>
-                        <!-- 取消置顶按钮 -->
-                        <n-popover>
-                            <template #trigger>
-                                <n-button text style="margin-left: 8px;">
-                                    <n-icon :size="18" :component="ArrowCircleDownRound"></n-icon>
-                                </n-button>
-                            </template>
-                            取消置顶
-                        </n-popover>
+
                         <!-- 编辑按钮 -->
                         <n-popover>
                             <template #trigger>
@@ -114,16 +127,16 @@ getThingList()
                     <!-- 小记标签 -->
                     <template #default>
                         <n-space>
-                            <n-tag size="small" :bordered="false">作业</n-tag>
-                            <n-tag size="small" :bordered="false">大学生</n-tag>
+                            <n-tag v-for="tag in t.tags.split(',')" :key="tag" size="small" :bordered="false">{{ tag
+                            }}</n-tag>
                         </n-space>
                     </template>
                     <!-- 置顶标签、最后一次操作时间 -->
                     <template #footer>
                         <n-space align="center" :size="3">
-                            <n-tag size="small" :bordered="false" type="success">置顶</n-tag>
-                            <n-divider vertical></n-divider>
-                            <n-text depth="3">2023-10-29 23:57:10</n-text>
+                            <n-tag v-if="t.top" size="small" :bordered="false" type="success">置顶</n-tag>
+                            <n-divider v-if="t.top" vertical></n-divider>
+                            <n-text depth="3">{{ t.updateTime }}</n-text>
                         </n-space>
                     </template>
                 </n-card>
