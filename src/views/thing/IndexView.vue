@@ -4,7 +4,7 @@ import { storeToRefs } from "pinia"
 import { DeleteOutlineRound, ArrowCircleUpRound, ArrowCircleDownRound, EditNoteRound } from '@vicons/material'
 import { useMessage, useLoadingBar } from 'naive-ui'
 import { useThemeStore } from '@/stores/themeStore'
-import { getUserToken } from '@/utils/userLoginUtil'
+import { getUserToken, loginInvalid } from '@/utils/userLoginUtil'
 import { noteBaseRequest } from "@/request/note_request"
 
 // ===== 小记卡片的效果 =====
@@ -67,7 +67,10 @@ const getThingList = async () => {
         things.value = responseData.data // 小记列表
     } else {
         loadingBar.error() // 加载条异常结束 
-        message.error(responseData.message) // 显示请求失败的通知 
+        message.error(responseData.message) // 显示发送请求失败的通知 
+        if (responseData.code === "L_008") {
+            loginInvalid(true) // 登录失效
+        }
     }
 }
 

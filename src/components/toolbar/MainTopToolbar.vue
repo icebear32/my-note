@@ -7,6 +7,7 @@ import { useThemeStore } from '@/stores/themeStore'
 import { useLoginModalStore } from "../../stores/loginModalStore"
 import { useUserStore } from '../../stores/userStore'
 import { noteBaseRequest } from '../../request/note_request'
+import { loginInvalid } from '@/utils/userLoginUtil'
 
 const themeStore = useThemeStore()
 const { theme, isDarkTheme } = storeToRefs(themeStore)
@@ -20,7 +21,6 @@ const { changeLoginModalShowStatus } = loginModalStore
 // 用户的共享数据
 const userStore = useUserStore()
 const { id: user_id, head_image, nickName, levelInfo } = storeToRefs(userStore)
-const { resetUserInfo } = userStore
 
 /* ===== 用户菜单头像 ===== */
 // 读取图标
@@ -81,10 +81,7 @@ const signOutLogin = async () => {
 
     console.log(responseData)
     if (responseData.success) {
-        // 用户共享的数据清空
-        resetUserInfo()
-        // userToken 本地存储删除
-        localStorage.removeItem("userToken")
+        loginInvalid(false) // 登录失效
     } else {
         // 显示退出登录失败的消息
         message.error(responseData.message)
