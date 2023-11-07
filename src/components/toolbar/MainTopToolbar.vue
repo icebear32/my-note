@@ -7,7 +7,7 @@ import { useThemeStore } from '@/stores/themeStore'
 import { useLoginModalStore } from "../../stores/loginModalStore"
 import { useUserStore } from '../../stores/userStore'
 import { noteBaseRequest } from '../../request/note_request'
-import { loginInvalid } from '@/utils/userLoginUtil'
+import { loginInvalid, getUserToken } from '@/utils/userLoginUtil'
 
 const themeStore = useThemeStore()
 const { theme, isDarkTheme } = storeToRefs(themeStore)
@@ -63,28 +63,29 @@ const clickUserMenu = (key) => {
 }
 // 退出登录
 const signOutLogin = async () => {
-    const userToken = localStorage.getItem("userToken")
-    if (userToken == null) {
-        // 没登陆
-        throw message.error("登录已失效")
-    }
+    // 判断用户是否已登陆（客户端检查本地存储的 userToken 值）
+    const userToken = await getUserToken()
 
-    // 删除 redis 中对应的 key（发送退出登录请求）
+    loadingBar.start() // 加载条开始
+
+    // 发送退出登录请求（删除 redis 中对应的 key）
     const { data: responseData } = await noteBaseRequest.get(
         '/user/login/out',
         {
             headers: { userToken }
         }
     ).catch(() => {
+        loadingBar.error() // 加载条异常结束
         throw message.error("退出登录错误")
     })
 
     console.log(responseData)
     if (responseData.success) {
-        loginInvalid(false) // 登录失效
+        loadingBar.finish() // 加载条结束
+        loginInvalid(true) // 登录失效
     } else {
-        // 显示退出登录失败的消息
-        message.error(responseData.message)
+        loadingBar.error() // 加载条异常结束
+        message.error(responseData.message) // 显示退出登录失败的消息
     }
 }
 </script>
@@ -94,7 +95,7 @@ const signOutLogin = async () => {
         <n-text type="info">
             ich笔记
         </n-text>
-        <n-space align="center">
+        <n-space align="center" :wrap-item="false">
             <!-- 头像 -->
             <n-popover v-model:show="userMenuShow" trigger="click" width="260" content-style="padding: 10px">
                 <template #trigger>
@@ -125,7 +126,7 @@ const signOutLogin = async () => {
             </n-popover>
 
             <!-- 分割线 -->
-            <n-divider v-if="user_id !== null" vertical style="position: relative;top: 5px;" />
+            <n-divider v-if="user_id !== null" vertical />
 
             <!-- 消息 -->
             <n-badge dot processing type="success" :offset="[-8, 4]">

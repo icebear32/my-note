@@ -10,6 +10,10 @@ export const getUserToken = async () => {
     if (token === null) {
         // 未登录
         const { changeLoginModalShowStatus } = useLoginModalStore() // 改变登录窗口显示的函数
+
+        const { resetUserInfo } = useUserStore() // 用户 store 对象中的重置用户信息的函数
+        await resetUserInfo() // 重置用户的登录状态
+
         await changeLoginModalShowStatus(true) // 弹出登录窗口（结束）
         throw "未登录"
     } else {
