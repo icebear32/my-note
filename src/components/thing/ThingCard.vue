@@ -101,7 +101,7 @@ const topThing = async (isTop) => {
 </script>
 
 <template>
-    <n-card style="min-width: 220px;" embedded :class="{ 'thing-card-finished': finished }" size="small"
+    <n-card style="min-width: 220px;max-width: max-content;" embedded :class="{ 'thing-card-finished': finished }" size="small"
         :bordered="isDarkTheme" :segmented="{ 'content': true }" :title="title">
         <template #header-extra>
             <!-- 删除按钮 -->

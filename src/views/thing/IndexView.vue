@@ -7,6 +7,7 @@ import { getUserToken, loginInvalid } from '@/utils/userLoginUtil'
 import { noteBaseRequest } from "@/request/note_request"
 import { SubtitlesOffOutlined } from '@vicons/material'
 import ThingCard from "@/components/thing/ThingCard.vue"
+import gsap from "gsap"
 
 // 消息对象
 const message = useMessage()
@@ -59,6 +60,25 @@ const getThingList = async () => {
     }
 }
 getThingList()
+
+// 执行动画之前的初始位置
+const beforeEnter = (el) => {
+    gsap.set(el, {
+        x: 30,
+        opacity: 0
+    })
+}
+
+// 执行动画
+const enterEvent = (el, done) => {
+    gsap.to(el, {
+        x: 0, // 偏移量
+        opacity: 1, // 透明度
+        duration: 3, //秒
+        delay: el.dataset.index * 0.2, // 延迟动画
+        onComplete: done // 动画执行完毕后调用的函数
+    })
+}
 </script>
 
 <template>
@@ -98,13 +118,19 @@ getThingList()
                 </n-card>
             </n-space>
             <!-- 小记列表 -->
-            <n-space v-else-if="!loading && things.length > 0">
-                <ThingCard v-for="thing in things" :key="thing.id" :id="thing.id" :title="thing.title"
-                    :finished="!!thing.finished" :top="!!thing.top" :tags="thing.tags.split(',')" :time="thing.updateTime"
-                    @changeStatus="getThingList(false)"></ThingCard>
+            <n-space :wrap-item="false">
+                <TransitionGroup @before-enter="beforeEnter" @enter="enterEvent">
+                    <template v-if="!loading && things.length > 0">
+                        <ThingCard class="thing-cards" v-for="thing in things" :key="thing.id" :id="thing.id"
+                            :data-index="index" :title="thing.title" :finished="!!thing.finished" :top="!!thing.top"
+                            :tags="thing.tags.split(',')" :time="thing.updateTime" @changeStatus="getThingList(false)">
+                        </ThingCard>
+                    </template>
+                </TransitionGroup>
             </n-space>
             <!-- 暂无小记列表的描述 -->
-            <n-empty v-else style="margin: 20px auto;" size="huge" description="暂无小记列表，创建新的小记">
+            <n-empty v-if="!loading && things.length === 0" style="margin: 20px auto;" size="huge"
+                description="暂无小记列表，创建新的小记">
                 <template #icon>
                     <n-icon :component="SubtitlesOffOutlined"></n-icon>
                 </template>
@@ -116,3 +142,8 @@ getThingList()
     </n-layout>
 </template>
 
+<style scoped>
+.n-card .thing-cards {
+    transition: all 0.5s;
+}
+</style>
