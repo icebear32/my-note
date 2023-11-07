@@ -40,15 +40,15 @@ const thingCardTopIconText = top => {
 const message = useMessage()
 // 加载条对象
 const loadingBar = useLoadingBar()
+
 // 获取小记列表
 const getThingList = async () => {
     // 判断用户的登录状态
     const userToken = await getUserToken()
     // console.log(userToken)
+    loadingBar.start() // 加载条开始
 
     // 发送获取小记列表请求
-    loadingBar.start() // 加载条开始
-    // 发送登录请求
     const { data: responseData } = await noteBaseRequest.get(
         "/thing/list",
         {
@@ -75,6 +75,43 @@ const getThingList = async () => {
 }
 
 getThingList()
+
+/**
+ * 置顶小记
+ * @param {Boolean} isTop 是否为置顶请求
+ * @param {Number} thingId 小记编号
+ */
+const topThing = async (isTop, thingId) => {
+    // 判断用户的登录状态
+    const userToken = await getUserToken()
+    loadingBar.start() // 加载条开始
+
+    // 发送置顶小记请求
+    const { data: responseData } = await noteBaseRequest.get(
+        "/thing/top",
+        {
+            params: { isTop, thingId },
+            headers: { userToken }
+        }
+    ).catch(() => {
+        // 发送请求失败（404，500，400，...）
+        loadingBar.error() // 加载条异常
+        throw message.error(isTop ? "置顶小记请求失败" : "取消置顶小记请求失败") // 请求失败的通知
+    })
+    // 得到服务器返回的数据，进行处理
+    console.log(responseData)
+    if (responseData.success) {
+        loadingBar.finish() // 加载条结束
+        message.success(responseData.message) // 显示发送请求成功的通知 
+        getThingList() // 重新获取小记列表
+    } else {
+        loadingBar.error() // 加载条异常结束 
+        message.error(responseData.message) // 显示发送请求失败的通知 
+        if (responseData.code === "L_008") {
+            loginInvalid(true) // 登录失效
+        }
+    }
+}
 </script>
 
 <template>
@@ -109,7 +146,9 @@ getThingList()
                         <!-- 置顶按钮/取消置顶按钮 -->
                         <n-popover>
                             <template #trigger>
-                                <n-button text style="margin-left: 8px;">
+                                <!-- 0 false -> true -->
+                                <!-- 1 true -> false -->
+                                <n-button text style="margin-left: 8px;" @click="topThing(!!!t.top, t.id)">
                                     <n-icon :size="18" :component="thingCardTopIconText(t.top).icon"></n-icon>
                                 </n-button>
                             </template>
