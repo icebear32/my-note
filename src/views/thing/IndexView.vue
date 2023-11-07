@@ -1,11 +1,11 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { storeToRefs } from "pinia"
-import { DeleteOutlineRound, ArrowCircleUpRound, ArrowCircleDownRound, EditNoteRound } from '@vicons/material'
 import { useMessage, useLoadingBar } from 'naive-ui'
 import { useThemeStore } from '@/stores/themeStore'
 import { getUserToken, loginInvalid } from '@/utils/userLoginUtil'
 import { noteBaseRequest } from "@/request/note_request"
+import { DeleteOutlineRound, ArrowCircleUpRound, ArrowCircleDownRound, EditNoteRound, SubtitlesOffOutlined } from '@vicons/material'
 
 // ===== 小记卡片的效果 =====
 // 主题 store 对象
@@ -165,7 +165,7 @@ const topThing = async (isTop, thingId, index) => {
                 </n-card>
             </n-space>
             <!-- 小记列表 -->
-            <n-space v-else>
+            <n-space v-else-if="!loading && things.length > 0">
                 <n-card style="min-width: 220px;" v-for="(t, index) in things" :key="t.id" embedded
                     :class="{ 'thing-card-finished': t.finished }" size="small" :bordered="isDarkTheme"
                     :segmented="{ 'content': true }" :title="t.title">
@@ -220,6 +220,15 @@ const topThing = async (isTop, thingId, index) => {
                     </template>
                 </n-card>
             </n-space>
+            <!-- 暂无小记列表的描述 -->
+            <n-empty style="margin: 20px auto;" size="huge" description="暂无小记列表，创建新的小记">
+                <template #icon>
+                    <n-icon :component="SubtitlesOffOutlined"></n-icon>
+                </template>
+                <template #extra>
+                    <n-button dashed>创建小记</n-button>
+                </template>
+            </n-empty>
         </n-card>
     </n-layout>
 </template>
