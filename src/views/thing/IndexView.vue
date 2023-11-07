@@ -8,6 +8,7 @@ import { noteBaseRequest } from "@/request/note_request"
 import { SubtitlesOffOutlined } from '@vicons/material'
 import ThingCard from "@/components/thing/ThingCard.vue"
 import gsap from "gsap"
+import DeleteRemindDialog from '@/components/remind/DeleteRemindDialog.vue'
 
 // 消息对象
 const message = useMessage()
@@ -79,6 +80,10 @@ const enterEvent = (el, done) => {
         onComplete: done // 动画执行完毕后调用的函数
     })
 }
+
+const abc = (type) => {
+    message.info(type)
+}
 </script>
 
 <template>
@@ -140,6 +145,14 @@ const enterEvent = (el, done) => {
             </n-empty>
         </n-card>
     </n-layout>
+    <!-- 删除提醒框 -->
+    <DeleteRemindDialog 
+    describe="删除的小记为《123》" 
+    :complete-delete-btn="true"
+    @completeDeleteBtn = "abc"
+    @deleteBtn = "abc"
+    @cancel = "abc"
+    ></DeleteRemindDialog>
 </template>
 
 <style scoped>
