@@ -80,11 +80,16 @@ getThingList()
  * 置顶小记
  * @param {Boolean} isTop 是否为置顶请求
  * @param {Number} thingId 小记编号
+ * @param {Number} index 小记索引
  */
-const topThing = async (isTop, thingId) => {
+const topThing = async (isTop, thingId, index) => {
+
     // 判断用户的登录状态
     const userToken = await getUserToken()
     loadingBar.start() // 加载条开始
+
+    const thing = things.value[index]; // 当前小记对象
+    thing.toTop = true // 禁用小记的置顶按钮
 
     // 发送置顶小记请求
     const { data: responseData } = await noteBaseRequest.get(
@@ -96,6 +101,7 @@ const topThing = async (isTop, thingId) => {
     ).catch(() => {
         // 发送请求失败（404，500，400，...）
         loadingBar.error() // 加载条异常
+        thing.toTop = false // 解除禁用小记的置顶按钮
         throw message.error(isTop ? "置顶小记请求失败" : "取消置顶小记请求失败") // 请求失败的通知
     })
     // 得到服务器返回的数据，进行处理
@@ -106,7 +112,8 @@ const topThing = async (isTop, thingId) => {
         getThingList() // 重新获取小记列表
     } else {
         loadingBar.error() // 加载条异常结束 
-        message.error(responseData.message) // 显示发送请求失败的通知 
+        thing.toTop = false // 解除禁用小记的置顶按钮
+        message.error(responseData.message) // 显示发送请求失败的通知
         if (responseData.code === "L_008") {
             loginInvalid(true) // 登录失效
         }
@@ -130,7 +137,7 @@ const topThing = async (isTop, thingId) => {
         <!-- 小记列表容器 -->
         <n-card size="small" :bordered="false" style="margin-top: 20px;">
             <n-space>
-                <n-card style="min-width: 220px;" v-for="t in things" :key="t.id" embedded
+                <n-card style="min-width: 220px;" v-for="(t, index) in things" :key="t.id" embedded
                     :class="{ 'thing-card-finished': t.finished }" size="small" :bordered="isDarkTheme"
                     :segmented="{ 'content': true }" :title="t.title">
                     <template #header-extra>
@@ -148,7 +155,8 @@ const topThing = async (isTop, thingId) => {
                             <template #trigger>
                                 <!-- 0 false -> true -->
                                 <!-- 1 true -> false -->
-                                <n-button text style="margin-left: 8px;" @click="topThing(!!!t.top, t.id)">
+                                <n-button :disabled="t.toTop" text style="margin-left: 8px;"
+                                    @click="topThing(!!!t.top, t.id, index)">
                                     <n-icon :size="18" :component="thingCardTopIconText(t.top).icon"></n-icon>
                                 </n-button>
                             </template>
