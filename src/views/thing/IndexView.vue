@@ -17,6 +17,8 @@ const thingFinishShadowColor = computed(() => {
 })
 
 // ===== 获取小记列表 =====
+// 是否处于加载中，true显示小记列表骨架屏，false显示小记列表
+const loading = ref(true)
 // 小记列表
 const things = ref([])
 /**
@@ -41,8 +43,12 @@ const message = useMessage()
 // 加载条对象
 const loadingBar = useLoadingBar()
 
-// 获取小记列表
-const getThingList = async () => {
+/**
+ * 获取小记列表
+ * @param {Boolean} isUpdateLoading 是否需要改变加载数据源
+ * @returns {Promise<void>}
+ */
+const getThingList = async (isUpdateLoading) => {
     // 判断用户的登录状态
     const userToken = await getUserToken()
     // console.log(userToken)
@@ -65,6 +71,8 @@ const getThingList = async () => {
         loadingBar.finish() // 加载条结束
         console.log(responseData.data)
         things.value = responseData.data // 小记列表
+
+        if (isUpdateLoading) loading.value = false // 小记列表不处于记载状态
     } else {
         loadingBar.error() // 加载条异常结束 
         message.error(responseData.message) // 显示发送请求失败的通知 
@@ -73,8 +81,7 @@ const getThingList = async () => {
         }
     }
 }
-
-getThingList()
+getThingList(true)
 
 /**
  * 置顶小记
@@ -109,7 +116,7 @@ const topThing = async (isTop, thingId, index) => {
     if (responseData.success) {
         loadingBar.finish() // 加载条结束
         message.success(responseData.message) // 显示发送请求成功的通知 
-        getThingList() // 重新获取小记列表
+        getThingList(false) // 重新获取小记列表
     } else {
         loadingBar.error() // 加载条异常结束 
         thing.toTop = false // 解除禁用小记的置顶按钮
@@ -136,7 +143,29 @@ const topThing = async (isTop, thingId, index) => {
         </n-card>
         <!-- 小记列表容器 -->
         <n-card size="small" :bordered="false" style="margin-top: 20px;">
-            <n-space>
+            <!-- 小记列表骨架屏 -->
+            <n-space v-if="loading">
+                <n-card embedded size="small" :bordered="isDarkTheme" :segmented="{ 'content': 'soft' }" v-for="n in 9">
+                    <template #header>
+                        <n-skeleton :width="180" size="small"></n-skeleton>
+                    </template>
+                    <template #header-extra>
+                        <n-skeleton :width="20" repeat="3" circle style="margin-left: 6px;"></n-skeleton>
+                    </template>
+                    <template #default>
+                        <n-space>
+                            <n-skeleton :width="50" :height="22"></n-skeleton>
+                            <n-skeleton :width="80" :height="22"></n-skeleton>
+                            <n-skeleton :width="50" :height="22"></n-skeleton>
+                        </n-space>
+                    </template>
+                    <template #footer>
+                        <n-skeleton text :width="140"></n-skeleton>
+                    </template>
+                </n-card>
+            </n-space>
+            <!-- 小记列表 -->
+            <n-space v-else>
                 <n-card style="min-width: 220px;" v-for="(t, index) in things" :key="t.id" embedded
                     :class="{ 'thing-card-finished': t.finished }" size="small" :bordered="isDarkTheme"
                     :segmented="{ 'content': true }" :title="t.title">
