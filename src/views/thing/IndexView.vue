@@ -98,8 +98,43 @@ const showDeleteRemindDialog = ({ id, title }) => {
  * 删除小记
  * @param {Boolean} complete 是否彻底删除
  */
-const toDeleteThing = complete => {
-    message.info(complete ? '彻底删除' : '删除')
+const toDeleteThing = async complete => {
+    deleteRemind.value.show = false // 关闭提醒框
+
+    // 判断用户的登录状态
+    const userToken = await getUserToken()
+    loadingBar.start() // 加载条开始
+
+    // 发送删除小记请求
+    const { data: responseData } = await noteBaseRequest.delete(
+        "/thing/delete",
+        {
+            params: {
+                complete,
+                isRecycleBin: false,
+                thingId: deleteRemind.value.id
+            },
+            headers: { userToken }
+        }
+    ).catch(() => {
+        // 发送请求失败（404，500，400，...）
+        loadingBar.error() // 加载条异常
+        throw message.error(complete ? "彻底删除小记请求失败" : "删除小记请求失败") // 请求失败的通知
+    })
+    // 得到服务器返回的数据，进行处理
+    console.log(responseData)
+    
+    if (responseData.success) {
+        loadingBar.finish() // 加载条结束
+        message.success(responseData.message) // 显示发送请求成功的通知 
+        getThingList() // 重新获取小记列表
+    } else {
+        loadingBar.error() // 加载条异常结束 
+        message.error(responseData.message) // 显示发送请求失败的通知
+        if (responseData.code === "L_008") {
+            loginInvalid(true) // 登录失效
+        }
+    }
 }
 </script>
 
