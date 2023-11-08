@@ -81,8 +81,25 @@ const enterEvent = (el, done) => {
     })
 }
 
-const abc = (type) => {
-    message.info(type)
+// ===== 删除小记提醒框 =====
+// 删除提醒框的对象
+const deleteRemind = ref({
+    show: false, // 是否显示
+    id: null, // 小记编号
+    desc: null, // 提醒框的描述内容
+})
+// 显示删除小记提醒框
+const showDeleteRemindDialog = ({ id, title }) => {
+    deleteRemind.value.id = id // 将要删除的小记编号
+    deleteRemind.value.desc = "删除《" + title + "》将会在回收站中恢复，彻底删除则无法恢复！" // 删除提醒框的描述内容
+    deleteRemind.value.show = true // 显示删除提醒框
+}
+/**
+ * 删除小记
+ * @param {Boolean} complete 是否彻底删除
+ */
+const toDeleteThing = complete => {
+    message.info(complete ? '彻底删除' : '删除')
 }
 </script>
 
@@ -128,7 +145,8 @@ const abc = (type) => {
                     <template v-if="!loading && things.length > 0">
                         <ThingCard class="thing-cards" v-for="thing in things" :key="thing.id" :id="thing.id"
                             :data-index="index" :title="thing.title" :finished="!!thing.finished" :top="!!thing.top"
-                            :tags="thing.tags.split(',')" :time="thing.updateTime" @changeStatus="getThingList(false)">
+                            :tags="thing.tags.split(',')" :time="thing.updateTime" @changeStatus="getThingList(false)"
+                            @delete="showDeleteRemindDialog">
                         </ThingCard>
                     </template>
                 </TransitionGroup>
@@ -146,13 +164,8 @@ const abc = (type) => {
         </n-card>
     </n-layout>
     <!-- 删除提醒框 -->
-    <DeleteRemindDialog 
-    describe="删除的小记为《123》" 
-    :complete-delete-btn="true"
-    @completeDeleteBtn = "abc"
-    @deleteBtn = "abc"
-    @cancel = "abc"
-    ></DeleteRemindDialog>
+    <DeleteRemindDialog :show="deleteRemind.show" :describe="deleteRemind.desc" @delete="toDeleteThing"
+        @cancel="deleteRemind.show = false"></DeleteRemindDialog>
 </template>
 
 <style scoped>
