@@ -5,10 +5,11 @@ import { useMessage, useLoadingBar } from 'naive-ui'
 import { useThemeStore } from '@/stores/themeStore'
 import { getUserToken, loginInvalid } from '@/utils/userLoginUtil'
 import { noteBaseRequest } from "@/request/note_request"
-import { SubtitlesOffOutlined, AddBoxRound, DeleteForeverFilled } from '@vicons/material'
+import { SubtitlesOffOutlined } from '@vicons/material'
 import ThingCard from "@/components/thing/ThingCard.vue"
 import gsap from "gsap"
 import DeleteRemindDialog from '@/components/remind/DeleteRemindDialog.vue'
+import EditThingModel from '@/components/thing/EditThingModel.vue'
 
 // 消息对象
 const message = useMessage()
@@ -243,96 +244,11 @@ const isFinished = computed(() => {
     <DeleteRemindDialog :show="deleteRemind.show" :describe="deleteRemind.desc" @delete="toDeleteThing"
         @cancel="deleteRemind.show = false"></DeleteRemindDialog>
     <!-- 编辑小记窗口 -->
-    <n-modal :show="true">
-        <n-card size="small" :bordered="false" style="width: 460px;" :class="{ 'thing-card-finished': isFinished }">
-            <!-- 头部栏 -->
-            <template #header>
-                <n-input size="large" placeholder="请输入小记标题" style="--n-border: none; background-color: transparent;" />
-            </template>
-
-            <!-- 内容栏 -->
-            <template #default>
-                <div style="padding: 0 14px;">
-                    <!-- 置顶、标签容器 -->
-                    <n-space align="center">
-                        <n-text depth="3">置顶：</n-text>
-                        <n-switch :round="false" />
-                        <!-- 标签容器 -->
-                        <n-space align="center">
-                            <n-text depth="3">标签：</n-text>
-                            <n-dynamic-tags :max="5" :default-value="['IT', '计算机技术', '程序员']"
-                                :color="{ borderColor: 'rgba(0, 0, 0, 0)' }" />
-                        </n-space>
-                    </n-space>
-
-                    <!-- 分割线 -->
-                    <n-divider style="margin-top: 14px;"></n-divider>
-
-                    <!-- 待办事项列表 -->
-                    <n-dynamic-input v-model:value="toDuThingContent" :on-create="onCreateTuDoThing">
-                        <template #create-button-default>
-                            添加一个待办事项
-                        </template>
-                        <template #default="{ value }">
-                            <div style="display: flex; align-items: center; width: 100%">
-                                <!-- 复选框（是否完成这个待办事项） -->
-                                <n-checkbox v-model:checked="value.checked" />
-                                <!-- 输入框（待办事项） -->
-                                <n-input v-model:value="value.thing" placeholder="请输入......"
-                                    style="margin-left: 12px; --n-border: none;" />
-                            </div>
-                        </template>
-                        <template #action="{ index, create, remove, move }">
-                            <div style="display: flex; align-items: center; margin-left: 12px;">
-                                <!-- 添加按钮 -->
-                                <n-button circle tertiary type="tertiary" @click="() => create(index)"
-                                    style="margin-right: 6px;">
-                                    <n-icon :component="AddBoxRound"></n-icon>
-                                </n-button>
-                                <!-- 删除按钮 -->
-                                <n-button circle tertiary type="tertiary" @click="() => remove(index)">
-                                    <n-icon :component="DeleteForeverFilled"></n-icon>
-                                </n-button>
-                            </div>
-                        </template>
-                    </n-dynamic-input>
-                </div>
-            </template>
-
-            <!-- 功能栏 -->
-            <template #action>
-                <n-grid cols="2" :x-gap="12">
-                    <n-gi>
-                        <n-button block tertiary>取消</n-button>
-                    </n-gi>
-                    <n-gi>
-                        <n-button block ghost type="primary">保存</n-button>
-                    </n-gi>
-                </n-grid>
-            </template>
-        </n-card>
-    </n-modal>
+    <EditThingModel></EditThingModel>
 </template>
 
 <style>
 .move-transition {
     transition: all 0.5s;
-}
-
-.n-card.thing-card-finished {
-    background-image: url("@/assets/finish.png");
-    background-repeat: no-repeat;
-    background-position: 360px 0;
-    animation: finished 0.25s linear forwards;
-}
-
-@keyframes finished {
-    from {
-        background-size: 130px 130px;
-    }
-
-    to {
-        background-size: 100px 100px;
-    }
 }
 </style>
