@@ -62,7 +62,8 @@ const getThingList = async () => {
 }
 getThingList()
 
-// 执行动画之前的初始位置
+// ===== 执行动画 =====
+// 执行显示动画之前的初始位置
 const beforeEnter = (el) => {
     gsap.set(el, {
         x: 30,
@@ -70,12 +71,34 @@ const beforeEnter = (el) => {
     })
 }
 
-// 执行动画
+// 执行显示动画
 const enterEvent = (el, done) => {
     gsap.to(el, {
         x: 0, // 偏移量
         opacity: 1, // 透明度
         duration: 3, //秒
+        delay: el.dataset.index * 0.2, // 延迟动画
+        onComplete: done // 动画执行完毕后调用的函数
+    })
+}
+
+// 执行隐藏动画之前的初始位置
+const beforeLeave = (el) => {
+    gsap.set(el, {
+        opacity: 1,
+        scale: 1,
+        position: 'fixed',
+        top: 0,
+        left: '50%'
+    })
+}
+
+// 执行隐藏动画
+const leaveEvent = (el, done) => {
+    gsap.to(el, {
+        scale: 0.01, // 偏移量
+        opacity: 0, // 透明度
+        duration: 0.5, //动画时间（秒）
         delay: el.dataset.index * 0.2, // 延迟动画
         onComplete: done // 动画执行完毕后调用的函数
     })
@@ -176,9 +199,9 @@ const toDeleteThing = async complete => {
             </n-space>
             <!-- 小记列表 -->
             <n-space :wrap-item="false">
-                <TransitionGroup @before-enter="beforeEnter" @enter="enterEvent">
+                <TransitionGroup @before-enter="beforeEnter" @enter="enterEvent" @before-leave="beforeLeave" @leave="leaveEvent" move-class="move-transition">
                     <template v-if="!loading && things.length > 0">
-                        <ThingCard class="thing-cards" v-for="thing in things" :key="thing.id" :id="thing.id"
+                        <ThingCard v-for="thing in things" :key="thing.id" :id="thing.id"
                             :data-index="index" :title="thing.title" :finished="!!thing.finished" :top="!!thing.top"
                             :tags="thing.tags.split(',')" :time="thing.updateTime" @changeStatus="getThingList(false)"
                             @delete="showDeleteRemindDialog">
@@ -203,8 +226,8 @@ const toDeleteThing = async complete => {
         @cancel="deleteRemind.show = false"></DeleteRemindDialog>
 </template>
 
-<style scoped>
-.n-card .thing-cards {
+<style>
+.move-transition {
     transition: all 0.5s;
 }
 </style>
