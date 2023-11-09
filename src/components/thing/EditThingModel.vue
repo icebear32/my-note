@@ -6,7 +6,9 @@ import { AddBoxRound, DeleteForeverFilled } from '@vicons/material'
 // 通知对象
 const notification = useNotification()
 
-// ===== 待办事项列表 =====
+// 是否显示编辑小记模态框
+const show = ref(false)
+
 // 创建一个待办事项的
 const onCreateTuDoThing = () => ({
     checked: false, // 是否已完成
@@ -79,10 +81,42 @@ const saveEditThing = () => {
 
 // 是否处于加载中
 const loading = ref(true)
+
+/**
+ * 显示编辑小记的模态框
+ * @param {Number} id 小记编号（无值：新增小记；有值：修改小记）
+ */
+const showEditModal = id => {
+    show.value = true // 显示编辑小记的模态框
+    loading.value = true // 处于加载中
+    // 判断是修改小记还是新增小记
+    if (id === null) {
+        // console.log('新增小记')
+        loading.value = false // 加载已结束
+    } else {
+        // console.log('修改小记' + id)
+        // 发送请求（根据小记编号获取最新的小记信息）
+        setTimeout(() => {
+            loading.value = false // 加载已结束
+        }, 3000);
+    }
+}
+
+// 重置编辑的小记
+const resetEditThing = () => {
+    // console.log('模态框已关闭')
+    formValue.value.title = '' // 标题
+    formValue.value.top = false // 是否置顶
+    formValue.value.tags = [] // 标签
+    formValue.value.content = [] // 待办事项
+}
+
+// 将哪些函数导出
+defineExpose({ showEditModal })
 </script>
 
 <template>
-    <n-modal :show="true">
+    <n-modal v-model:show="show" :auto-focus="false" :on-after-leave="resetEditThing">
         <div>
             <!-- 骨架屏卡片 -->
             <n-card v-show="loading" size="small" :bordered="false" style="width: 460px;">
@@ -192,7 +226,7 @@ const loading = ref(true)
                 <template #action>
                     <n-grid cols="2" :x-gap="12">
                         <n-gi>
-                            <n-button block tertiary>取消</n-button>
+                            <n-button block tertiary @click="show = false">取消</n-button>
                         </n-gi>
                         <n-gi>
                             <n-button block ghost type="primary" @click="saveEditThing">保存</n-button>

@@ -176,6 +176,9 @@ const isFinished = computed(() => {
     if (toDuThingContent.value.length === 0) return false
     return toDuThingContent.value.every(item => item.checked)
 })
+
+// 编辑小记模态框组件的引用
+const editThingModalRef = ref(null)
 </script>
 
 <template>
@@ -189,7 +192,7 @@ const isFinished = computed(() => {
             </template>
             <!-- 新增小记按钮 -->
             <template #header-extra>
-                <n-button dashed>新增小记</n-button>
+                <n-button dashed @click="editThingModalRef.showEditModal(null)">新增小记</n-button>
             </template>
         </n-card>
         <!-- 小记列表容器 -->
@@ -223,7 +226,7 @@ const isFinished = computed(() => {
                         <ThingCard v-for="thing in things" :key="thing.id" :id="thing.id" :data-index="index"
                             :title="thing.title" :finished="!!thing.finished" :top="!!thing.top"
                             :tags="thing.tags.split(',')" :time="thing.updateTime" @changeStatus="getThingList(false)"
-                            @delete="showDeleteRemindDialog">
+                            @delete="showDeleteRemindDialog" @edit="editThingModalRef.showEditModal(thing.id)">
                         </ThingCard>
                     </template>
                 </TransitionGroup>
@@ -235,7 +238,7 @@ const isFinished = computed(() => {
                     <n-icon :component="SubtitlesOffOutlined"></n-icon>
                 </template>
                 <template #extra>
-                    <n-button dashed>创建小记</n-button>
+                    <n-button dashed @click="editThingModalRef.showEditModal(null)">创建小记</n-button>
                 </template>
             </n-empty>
         </n-card>
@@ -244,7 +247,7 @@ const isFinished = computed(() => {
     <DeleteRemindDialog :show="deleteRemind.show" :describe="deleteRemind.desc" @delete="toDeleteThing"
         @cancel="deleteRemind.show = false"></DeleteRemindDialog>
     <!-- 编辑小记窗口 -->
-    <EditThingModel></EditThingModel>
+    <EditThingModel ref="editThingModalRef"></EditThingModel>
 </template>
 
 <style>
