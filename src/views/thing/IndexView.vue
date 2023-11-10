@@ -18,17 +18,21 @@ const loadingBar = useLoadingBar()
 // 主题 store 对象
 const themeStore = useThemeStore()
 const { isDarkTheme } = storeToRefs(themeStore) // 是否为暗系主题
+// 是否是新增小记
+const isNewCreate = ref(false)
 
 // ===== 获取小记列表 =====
 // 是否处于加载中，true显示小记列表骨架屏，false显示小记列表
 const loading = ref(true)
 // 小记列表
 const things = ref([])
+
 /**
  * 获取小记列表
- * @returns {Promise<void>}
+ * @param {Boolean} NewCreate 是否是新增小记
  */
-const getThingList = async () => {
+const getThingList = async (newCreate) => {
+    isNewCreate.value = newCreate // 是否是新增小记
     // 判断用户的登录状态
     const userToken = await getUserToken()
     // console.log(userToken)
@@ -61,7 +65,7 @@ const getThingList = async () => {
         }
     }
 }
-getThingList()
+getThingList(false)
 
 // ===== 执行动画 =====
 // 执行显示动画之前的初始位置
@@ -78,7 +82,7 @@ const enterEvent = (el, done) => {
         x: 0, // 偏移量
         opacity: 1, // 透明度
         duration: 3, //秒
-        delay: el.dataset.index * 0.2, // 延迟动画
+        delay: () => (isNewCreate.value ? 0 : el.dataset.index * 0.2), // 延迟动画
         onComplete: done // 动画执行完毕后调用的函数
     })
 }
@@ -151,7 +155,7 @@ const toDeleteThing = async complete => {
     if (responseData.success) {
         loadingBar.finish() // 加载条结束
         message.success(responseData.message) // 显示发送请求成功的通知 
-        getThingList() // 重新获取小记列表
+        getThingList(false) // 重新获取小记列表
     } else {
         loadingBar.error() // 加载条异常结束 
         message.error(responseData.message) // 显示发送请求失败的通知

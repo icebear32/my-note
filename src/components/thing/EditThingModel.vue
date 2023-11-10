@@ -154,7 +154,7 @@ const newCreateSave = async () => {
         loadingBar.finish() // 加载条结束
         message.success(responseData.message) // 显示发送请求成功的通知
         show.value = false // 关闭编辑小记窗口
-        emits('save') // 触发保存事件（重新获取小记列表）
+        emits('save', true) // 触发保存事件（重新获取小记列表）
     } else {
         loadingBar.error() // 加载条异常结束 
         message.error(responseData.message) // 显示发送请求失败的通知 
