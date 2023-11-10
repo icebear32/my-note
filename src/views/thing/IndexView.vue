@@ -247,7 +247,7 @@ const editThingModalRef = ref(null)
     <DeleteRemindDialog :show="deleteRemind.show" :describe="deleteRemind.desc" @delete="toDeleteThing"
         @cancel="deleteRemind.show = false"></DeleteRemindDialog>
     <!-- 编辑小记窗口 -->
-    <EditThingModel ref="editThingModalRef"></EditThingModel>
+    <EditThingModel ref="editThingModalRef" @save="getThingList"></EditThingModel>
 </template>
 
 <style>

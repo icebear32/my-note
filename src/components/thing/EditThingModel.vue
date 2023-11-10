@@ -1,10 +1,19 @@
 <script setup>
-import { computed, ref } from 'vue'
-import { NText, NSpace, useNotification } from 'naive-ui'
+import { computed, ref, h } from 'vue'
+import { noteBaseRequest } from "@/request/note_request"
+import { getUserToken, loginInvalid } from '@/utils/userLoginUtil'
 import { AddBoxRound, DeleteForeverFilled } from '@vicons/material'
+import { NText, NSpace, useNotification, useMessage, useLoadingBar } from 'naive-ui'
 
 // 通知对象
 const notification = useNotification()
+// 消息对象
+const message = useMessage()
+// 加载条对象
+const loadingBar = useLoadingBar()
+
+// 自定义事件
+const emits = defineEmits(['save'])
 
 // 是否显示编辑小记模态框
 const show = ref(false)
@@ -17,11 +26,12 @@ const onCreateTuDoThing = () => ({
 
 // 编辑小记表单值
 const formValue = ref({
+    id: null, // 小记编号（修改的用户）
     title: '', // 标题
     top: false, // 是否置顶
     tags: [], // 标签
     content: [], // 待办事项
-    finish: computed(() => {
+    finished: computed(() => {
         const content = formValue.value.content // 待办事项
 
         if (content.length === 0) return false // 如果没有待办事项，则为：未完成
@@ -52,7 +62,12 @@ const formRules = {
 const saveEditThing = () => {
     formRef.value?.validate(errors => {
         if (!errors) {
-            alert('保存成功')
+            if (formValue.value.id === null) {
+                // 新增小记的保存
+                newCreateSave()
+            } else {
+                // 修改小记的保存
+            }
         } else {
             // 表单中所有验证错的对象
             const errorsMessage = [].concat(...errors)
@@ -94,6 +109,7 @@ const showEditModal = id => {
         // console.log('新增小记')
         loading.value = false // 加载已结束
     } else {
+        formValue.value.id = id // 修改小记的编号
         // console.log('修改小记' + id)
         // 发送请求（根据小记编号获取最新的小记信息）
         setTimeout(() => {
@@ -105,10 +121,50 @@ const showEditModal = id => {
 // 重置编辑的小记
 const resetEditThing = () => {
     // console.log('模态框已关闭')
+    formValue.value.id = null // 编号（修改小记）
     formValue.value.title = '' // 标题
     formValue.value.top = false // 是否置顶
     formValue.value.tags = [] // 标签
     formValue.value.content = [] // 待办事项
+}
+
+// 新增小记的保存
+const newCreateSave = async () => {
+    // 判断用户的登录状态
+    const userToken = await getUserToken()
+    loadingBar.start() // 加载条开始
+
+    // 发送创建小记请求
+    const title = formValue.value.title
+    const top = formValue.value.top
+    const tags = formValue.value.tags.join() // ['IT','计算机','科学'] => 'IT','计算机','科学'
+    const content = JSON.stringify(formValue.value.content) // [{...},{...},{...}] => '[{...},{...},{...}]'
+    const finished = formValue.value.finished
+    const { data: responseData } = await noteBaseRequest.post(
+        "/thing/create",
+        { title, top, tags, content, finished },
+        {
+            headers: { userToken }
+        }
+    ).catch(() => {
+        // 发送请求失败（404，500，400，...）
+        loadingBar.error() // 加载条异常
+        throw message.error("新增小记列表请求失败") // 新增小记列表请求失败的通知
+    })
+    // 得到服务器返回的数据，进行处理
+    console.log(responseData)
+    if (responseData.success) {
+        loadingBar.finish() // 加载条结束
+        message.success(responseData.message) // 显示发送请求成功的通知
+        show.value = false // 关闭编辑小记窗口
+        emits('save') // 触发保存事件（重新获取小记列表）
+    } else {
+        loadingBar.error() // 加载条异常结束 
+        message.error(responseData.message) // 显示发送请求失败的通知 
+        if (responseData.code === "L_008") {
+            loginInvalid(true) // 登录失效
+        }
+    }
 }
 
 // 将哪些函数导出
