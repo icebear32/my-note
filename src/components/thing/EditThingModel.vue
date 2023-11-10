@@ -67,6 +67,7 @@ const saveEditThing = () => {
                 newCreateSave()
             } else {
                 // 修改小记的保存
+                updateSave()
             }
         } else {
             // 表单中所有验证错的对象
@@ -164,6 +165,46 @@ const newCreateSave = async () => {
     }
 }
 
+// 修改小记的保存
+const updateSave = async () => {
+    // 判断用户的登录状态
+    const userToken = await getUserToken()
+    loadingBar.start() // 加载条开始
+
+    // 发送创建小记请求
+    const thingId = formValue.value.id
+    const title = formValue.value.title
+    const top = formValue.value.top
+    const tags = formValue.value.tags.join() // ['IT','计算机','科学'] => 'IT','计算机','科学'
+    const content = JSON.stringify(formValue.value.content) // [{...},{...},{...}] => '[{...},{...},{...}]'
+    const finished = formValue.value.finished
+    const { data: responseData } = await noteBaseRequest.post(
+        "/thing/update",
+        { thingId, title, top, tags, content, finished },
+        {
+            headers: { userToken }
+        }
+    ).catch(() => {
+        // 发送请求失败（404，500，400，...）
+        loadingBar.error() // 加载条异常
+        throw message.error("修改小记列表请求失败") // 修改小记列表请求失败的通知
+    })
+    // 得到服务器返回的数据，进行处理
+    console.log(responseData)
+    if (responseData.success) {
+        loadingBar.finish() // 加载条结束
+        message.success(responseData.message) // 显示发送请求成功的通知
+        show.value = false // 关闭编辑小记窗口
+        emits('save', false) // 触发保存事件（重新获取小记列表）
+    } else {
+        loadingBar.error() // 加载条异常结束 
+        message.error(responseData.message) // 显示发送请求失败的通知 
+        if (responseData.code === "L_008") {
+            loginInvalid(true) // 登录失效
+        }
+    }
+}
+
 /**
  * 获取编辑的小记信息（修改小记的最新信息）
  * @param {Number} thingId 小记编号
@@ -192,7 +233,7 @@ const getEditThing = async (thingId) => {
 
         const editThing = responseData.data
         formValue.value.title = editThing.title // 标题
-        formValue.value.top = editThing.top // 置顶
+        formValue.value.top = !!editThing.top // 置顶
         formValue.value.tags = editThing.tags.split(',') // 标签 ['IT','计算机','科学']
         formValue.value.content = JSON.parse(editThing.content) // 内容
 
