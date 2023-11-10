@@ -62,13 +62,8 @@ const formRules = {
 const saveEditThing = () => {
     formRef.value?.validate(errors => {
         if (!errors) {
-            if (formValue.value.id === null) {
-                // 新增小记的保存
-                newCreateSave()
-            } else {
-                // 修改小记的保存
-                updateSave()
-            }
+            // 调用保存小记函数，判断然后是新增还是修改操作，并完成新增或修改操作
+            save(formValue.value.id === null)
         } else {
             // 表单中所有验证错的对象
             const errorsMessage = [].concat(...errors)
@@ -126,76 +121,126 @@ const resetEditThing = () => {
     formValue.value.content = [] // 待办事项
 }
 
-// 新增小记的保存
-const newCreateSave = async () => {
+// // 新增小记的保存
+// const newCreateSave = async () => {
+//     // 判断用户的登录状态
+//     const userToken = await getUserToken()
+//     loadingBar.start() // 加载条开始
+
+//     // 发送创建小记请求
+//     const title = formValue.value.title
+//     const top = formValue.value.top
+//     const tags = formValue.value.tags.join() // ['IT','计算机','科学'] => 'IT','计算机','科学'
+//     const content = JSON.stringify(formValue.value.content) // [{...},{...},{...}] => '[{...},{...},{...}]'
+//     const finished = formValue.value.finished
+//     const { data: responseData } = await noteBaseRequest.post(
+//         "/thing/create",
+//         { title, top, tags, content, finished },
+//         {
+//             headers: { userToken }
+//         }
+//     ).catch(() => {
+//         // 发送请求失败（404，500，400，...）
+//         loadingBar.error() // 加载条异常
+//         throw message.error("新增小记列表请求失败") // 新增小记列表请求失败的通知
+//     })
+//     // 得到服务器返回的数据，进行处理
+//     console.log(responseData)
+//     if (responseData.success) {
+//         loadingBar.finish() // 加载条结束
+//         message.success(responseData.message) // 显示发送请求成功的通知
+//         show.value = false // 关闭编辑小记窗口
+//         emits('save', true) // 触发保存事件（重新获取小记列表）
+//     } else {
+//         loadingBar.error() // 加载条异常结束 
+//         message.error(responseData.message) // 显示发送请求失败的通知 
+//         if (responseData.code === "L_008") {
+//             loginInvalid(true) // 登录失效
+//         }
+//     }
+// }
+
+// // 修改小记的保存
+// const updateSave = async () => {
+//     // 判断用户的登录状态
+//     const userToken = await getUserToken()
+//     loadingBar.start() // 加载条开始
+
+//     // 发送创建小记请求
+//     const thingId = formValue.value.id
+//     const title = formValue.value.title
+//     const top = formValue.value.top
+//     const tags = formValue.value.tags.join() // ['IT','计算机','科学'] => 'IT','计算机','科学'
+//     const content = JSON.stringify(formValue.value.content) // [{...},{...},{...}] => '[{...},{...},{...}]'
+//     const finished = formValue.value.finished
+//     const { data: responseData } = await noteBaseRequest.post(
+//         "/thing/update",
+//         { thingId, title, top, tags, content, finished },
+//         {
+//             headers: { userToken }
+//         }
+//     ).catch(() => {
+//         // 发送请求失败（404，500，400，...）
+//         loadingBar.error() // 加载条异常
+//         throw message.error("修改小记列表请求失败") // 修改小记列表请求失败的通知
+//     })
+//     // 得到服务器返回的数据，进行处理
+//     console.log(responseData)
+//     if (responseData.success) {
+//         loadingBar.finish() // 加载条结束
+//         message.success(responseData.message) // 显示发送请求成功的通知
+//         show.value = false // 关闭编辑小记窗口
+//         emits('save', false) // 触发保存事件（重新获取小记列表）
+//     } else {
+//         loadingBar.error() // 加载条异常结束 
+//         message.error(responseData.message) // 显示发送请求失败的通知 
+//         if (responseData.code === "L_008") {
+//             loginInvalid(true) // 登录失效
+//         }
+//     }
+// }
+
+/**
+ * 保存小记
+ * @param {Boolean} isNewCreate 是否是新建小记
+ * @returns {Promise<void>}
+ */
+const save = async (isNewCreate) => {
     // 判断用户的登录状态
     const userToken = await getUserToken()
     loadingBar.start() // 加载条开始
-
-    // 发送创建小记请求
-    const title = formValue.value.title
-    const top = formValue.value.top
-    const tags = formValue.value.tags.join() // ['IT','计算机','科学'] => 'IT','计算机','科学'
-    const content = JSON.stringify(formValue.value.content) // [{...},{...},{...}] => '[{...},{...},{...}]'
-    const finished = formValue.value.finished
-    const { data: responseData } = await noteBaseRequest.post(
-        "/thing/create",
-        { title, top, tags, content, finished },
-        {
-            headers: { userToken }
-        }
-    ).catch(() => {
-        // 发送请求失败（404，500，400，...）
-        loadingBar.error() // 加载条异常
-        throw message.error("新增小记列表请求失败") // 新增小记列表请求失败的通知
-    })
-    // 得到服务器返回的数据，进行处理
-    console.log(responseData)
-    if (responseData.success) {
-        loadingBar.finish() // 加载条结束
-        message.success(responseData.message) // 显示发送请求成功的通知
-        show.value = false // 关闭编辑小记窗口
-        emits('save', true) // 触发保存事件（重新获取小记列表）
-    } else {
-        loadingBar.error() // 加载条异常结束 
-        message.error(responseData.message) // 显示发送请求失败的通知 
-        if (responseData.code === "L_008") {
-            loginInvalid(true) // 登录失效
-        }
-    }
-}
-
-// 修改小记的保存
-const updateSave = async () => {
-    // 判断用户的登录状态
-    const userToken = await getUserToken()
-    loadingBar.start() // 加载条开始
-
-    // 发送创建小记请求
+    // 请求携带的参数
     const thingId = formValue.value.id
     const title = formValue.value.title
     const top = formValue.value.top
     const tags = formValue.value.tags.join() // ['IT','计算机','科学'] => 'IT','计算机','科学'
     const content = JSON.stringify(formValue.value.content) // [{...},{...},{...}] => '[{...},{...},{...}]'
     const finished = formValue.value.finished
-    const { data: responseData } = await noteBaseRequest.post(
-        "/thing/update",
-        { thingId, title, top, tags, content, finished },
-        {
-            headers: { userToken }
-        }
-    ).catch(() => {
+    // 发送保存请求
+    let method = 'POST'
+    let url = '/thing/update'
+    if (isNewCreate) {
+        method = 'PUT'
+        url = '/thing/create'
+    }
+    const { data: responseData } = await noteBaseRequest({
+        method,
+        url,
+        data: { thingId, title, top, tags, content, finished },
+        headers: { userToken }
+    }).catch(() => {
         // 发送请求失败（404，500，400，...）
         loadingBar.error() // 加载条异常
-        throw message.error("修改小记列表请求失败") // 修改小记列表请求失败的通知
+        throw message.error("保存失败") // 保存失败的通知
     })
+
     // 得到服务器返回的数据，进行处理
     console.log(responseData)
     if (responseData.success) {
         loadingBar.finish() // 加载条结束
         message.success(responseData.message) // 显示发送请求成功的通知
         show.value = false // 关闭编辑小记窗口
-        emits('save', false) // 触发保存事件（重新获取小记列表）
+        emits('save', isNewCreate) // 触发保存事件（重新获取小记列表）
     } else {
         loadingBar.error() // 加载条异常结束 
         message.error(responseData.message) // 显示发送请求失败的通知 
