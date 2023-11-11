@@ -21,6 +21,29 @@ const { isDarkTheme } = storeToRefs(themeStore) // 是否为暗系主题
 // 是否是新增小记
 const isNewCreate = ref(false)
 
+// ===== 搜索输入框、过滤 =====
+// 搜索关键字
+const search = ref(null)
+
+// 过滤选择器值
+const filter = ref(null)
+
+// 过滤选项
+const filterOptions = [
+    {
+        label: '默认',
+        value: null
+    },
+    {
+        label: '未完成',
+        value: 0
+    },
+    {
+        label: '已完成',
+        value: 1
+    }
+]
+
 // ===== 获取小记列表 =====
 // 是否处于加载中，true显示小记列表骨架屏，false显示小记列表
 const loading = ref(true)
@@ -42,6 +65,10 @@ const getThingList = async (newCreate) => {
     const { data: responseData } = await noteBaseRequest.get(
         "/thing/list",
         {
+            params: {
+                search: search.value,
+                filter: filter.value
+            },
             headers: { userToken }
         }
     ).catch(() => {
@@ -196,7 +223,17 @@ const editThingModalRef = ref(null)
             </template>
             <!-- 新增小记按钮 -->
             <template #header-extra>
-                <n-button dashed @click="editThingModalRef.showEditModal(null)">新增小记</n-button>
+                <n-space>
+                    <!-- 搜索输入框 -->
+                    <n-input-group>
+                        <n-input v-model:value="search" placeholder="搜索" />
+                        <n-button @click="getThingList(false)">搜索</n-button>
+                    </n-input-group>
+                    <!-- 过滤选项 -->
+                    <n-select v-model:value="filter" :options="filterOptions" @update:value="getThingList(false)" placeholder="过滤" style="width: 130px;"/>
+                    <!-- 新增小记按钮 -->
+                    <n-button dashed @click="editThingModalRef.showEditModal(null)">新增小记</n-button>
+                </n-space>
             </template>
         </n-card>
         <!-- 小记列表容器 -->
