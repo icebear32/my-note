@@ -18,8 +18,6 @@ const loadingBar = useLoadingBar()
 // 主题 store 对象
 const themeStore = useThemeStore()
 const { isDarkTheme } = storeToRefs(themeStore) // 是否为暗系主题
-// 是否是新增小记
-const isNewCreate = ref(false)
 
 // ===== 搜索输入框、过滤 =====
 // 搜索关键字
@@ -44,6 +42,11 @@ const filterOptions = [
     }
 ]
 
+// 显示小记卡片是否需要延迟动画
+let enterDelay = true
+// 隐藏小记卡片是否需要动画
+let hiddemAnimation = true
+
 // ===== 获取小记列表 =====
 // 是否处于加载中，true显示小记列表骨架屏，false显示小记列表
 const loading = ref(true)
@@ -52,10 +55,15 @@ const things = ref([])
 
 /**
  * 获取小记列表
- * @param {Boolean} NewCreate 是否是新增小记
+ * 
+ * @param {Boolean} ed 显示小记卡片是否需要延迟动画
+ * @param {Boolean} ha 隐藏小记卡片是否需要动画
+ * @returns {Promise<void>}
  */
-const getThingList = async (newCreate) => {
-    isNewCreate.value = newCreate // 是否是新增小记
+const getThingList = async (ed, ha) => {
+    enterDelay = ed // 显示小记卡片是否需要延迟动画
+    hiddemAnimation = ha // 隐藏小记卡片是否需要动画
+
     // 判断用户的登录状态
     const userToken = await getUserToken()
     // console.log(userToken)
@@ -92,7 +100,9 @@ const getThingList = async (newCreate) => {
         }
     }
 }
-getThingList(false)
+
+// 首次进入页面：获取小记列表(需要有显示的延迟动画)
+getThingList(true, false)
 
 // ===== 执行动画 =====
 // 执行显示动画之前的初始位置
@@ -109,31 +119,47 @@ const enterEvent = (el, done) => {
         x: 0, // 偏移量
         opacity: 1, // 透明度
         duration: 3, //秒
-        delay: () => (isNewCreate.value ? 0 : el.dataset.index * 0.2), // 延迟动画
+        delay: () => (enterDelay ? el.dataset.index * 0.2 : 0), // 延迟动画
         onComplete: done // 动画执行完毕后调用的函数
     })
 }
 
 // 执行隐藏动画之前的初始位置
 const beforeLeave = (el) => {
-    gsap.set(el, {
-        opacity: 1,
-        scale: 1,
-        position: 'fixed',
-        top: 0,
-        left: '50%'
-    })
+    if (hiddemAnimation) {
+        // 获取删除的元素距离父组件的左和上位置
+        const left = el.offsetLeft
+        const top = el.offsetTop
+        // 设置删除组件的属性（需要脱离文档里）
+        gsap.set(el, {
+            position: 'absolute',
+            boxShadow: '0 0 5px black',
+            zIndex: 1,
+            top,
+            left
+        })
+    }
 }
 
 // 执行隐藏动画
 const leaveEvent = (el, done) => {
-    gsap.to(el, {
-        scale: 0.01, // 偏移量
-        opacity: 0, // 透明度
-        duration: 0.5, //动画时间（秒）
-        delay: el.dataset.index * 0.2, // 延迟动画
-        onComplete: done // 动画执行完毕后调用的函数
-    })
+    if (hiddemAnimation) {
+        let tl = gsap.timeline() // 创建时间线动画
+        tl.to(el, {
+            scale: 1.3, // 缩放
+            duration: 0.25, //动画时间（秒）
+        }).to(el, {
+            scale: 0, // 缩放
+            duration: 0.25, //动画时间（秒）
+            onComplete: done // 动画执行完毕后调用的函数
+        })
+    } else {
+        gsap.to(el, {
+            duration: 0, //动画时间（秒）
+            onComplete: done // 动画执行完毕后调用的函数
+        })
+    }
+
 }
 
 // ===== 删除小记提醒框 =====
@@ -182,7 +208,7 @@ const toDeleteThing = async complete => {
     if (responseData.success) {
         loadingBar.finish() // 加载条结束
         message.success(responseData.message) // 显示发送请求成功的通知 
-        getThingList(false) // 重新获取小记列表
+        getThingList(false, true) // 重新获取小记列表(需要有删除动画)
     } else {
         loadingBar.error() // 加载条异常结束 
         message.error(responseData.message) // 显示发送请求失败的通知
@@ -230,7 +256,8 @@ const editThingModalRef = ref(null)
                         <n-button @click="getThingList(false)">搜索</n-button>
                     </n-input-group>
                     <!-- 过滤选项 -->
-                    <n-select v-model:value="filter" :options="filterOptions" @update:value="getThingList(false)" placeholder="过滤" style="width: 130px;"/>
+                    <n-select v-model:value="filter" :options="filterOptions" @update:value="getThingList(false)"
+                        placeholder="过滤" style="width: 130px;" />
                     <!-- 新增小记按钮 -->
                     <n-button dashed @click="editThingModalRef.showEditModal(null)">新增小记</n-button>
                 </n-space>
@@ -266,8 +293,9 @@ const editThingModalRef = ref(null)
                     <template v-if="!loading && things.length > 0">
                         <ThingCard v-for="thing in things" :key="thing.id" :id="thing.id" :data-index="index"
                             :title="thing.title" :finished="!!thing.finished" :top="!!thing.top"
-                            :tags="thing.tags.split(',')" :time="thing.updateTime" @changeStatus="getThingList(false)"
-                            @delete="showDeleteRemindDialog" @edit="editThingModalRef.showEditModal(thing.id)">
+                            :tags="thing.tags.split(',')" :time="thing.updateTime"
+                            @changeStatus="getThingList(false, false)" @delete="showDeleteRemindDialog"
+                            @edit="editThingModalRef.showEditModal(thing.id)">
                         </ThingCard>
                     </template>
                 </TransitionGroup>
