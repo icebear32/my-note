@@ -1,8 +1,9 @@
 <script setup>
-import { EmailOutlined, LockOpenOutlined, FormatColorResetFilled } from '@vicons/material'
 import { ref } from 'vue'
+import { disabledBtn } from '@/utils/disabledBtn'
 import { useMessage, useLoadingBar } from 'naive-ui'
 import { noteBaseRequest } from "@/request/note_request"
+import { EmailOutlined, LockOpenOutlined, FormatColorResetFilled } from '@vicons/material'
 
 // 自定义事件
 const emits = defineEmits(['changeStep'])
@@ -64,7 +65,8 @@ const toRegister = (e) => {
             }
 
             loadingBar.start() // 加载条开始
-            registerBtnDisabled.value = true // 禁用注册按钮
+            // registerBtnDisabled.value = true // 禁用注册按钮
+            disabledBtn(registerBtnDisabled, true) // 禁用注册按钮
 
             // 发送注册请求
             const { data: responseData } = await noteBaseRequest.post(
@@ -78,11 +80,8 @@ const toRegister = (e) => {
                 // 发送请求失败（404，500，400，...）
                 loadingBar.error() // 加载条异常
                 message.error("注册请求失败") // 发送登录请求失败的通知
-
-                setTimeout(() => {
-                    registerBtnDisabled.value = false // 解除禁用注册按钮
-                }, 2500)
-
+                disabledBtn(registerBtnDisabled, false, true, 2.5) // 解除禁用注册按钮
+                
                 throw "发送注册请求失败"
             })
 
@@ -172,7 +171,8 @@ const getEmailVC = () => {
                     emailVcKey.value = responseData.data
                 } else {
                     loadingBar.error() // 加载条异常结束 
-                    message.error(responseData.message) // 显示发送失败的通知 
+                    message.error(responseData.message) // 显示发送失败的通知
+                    disabledBtn(registerBtnDisabled, false, true, 2.5) // 解除禁用注册按钮
                 }
 
             }

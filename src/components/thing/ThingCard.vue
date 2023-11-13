@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { storeToRefs } from "pinia"
+import { disabledBtn } from '@/utils/disabledBtn'
 import { useThemeStore } from '@/stores/themeStore'
 import { useMessage, useLoadingBar } from 'naive-ui'
 import { noteBaseRequest } from "@/request/note_request"
@@ -66,7 +67,8 @@ const topThing = async (isTop) => {
     const userToken = await getUserToken()
     loadingBar.start() // 加载条开始
 
-    topBtnDisabled.value = true // 禁用小记的置顶按钮
+    // topBtnDisabled.value = true // 禁用小记的置顶按钮
+    disabledBtn(topBtnDisabled, true) // 禁用小记的置顶按钮
 
     // 发送置顶小记请求
     const { data: responseData } = await noteBaseRequest.get(
@@ -78,12 +80,14 @@ const topThing = async (isTop) => {
     ).catch(() => {
         // 发送请求失败（404，500，400，...）
         loadingBar.error() // 加载条异常
-        topBtnDisabled.value = false // 解除禁用小记的置顶按钮
+        // topBtnDisabled.value = false // 解除禁用小记的置顶按钮
+        disabledBtn(topBtnDisabled, false, true, 1) // 解除禁用小记的置顶按钮
         throw message.error(isTop ? "置顶小记请求失败" : "取消置顶小记请求失败") // 请求失败的通知
     })
     // 得到服务器返回的数据，进行处理
     console.log(responseData)
-    topBtnDisabled.value = false // 解除禁用小记的置顶按钮
+    // topBtnDisabled.value = false // 解除禁用小记的置顶按钮
+    disabledBtn(topBtnDisabled, false, true, 1) // 解除禁用小记的置顶按钮
     if (responseData.success) {
         loadingBar.finish() // 加载条结束
         message.success(responseData.message) // 显示发送请求成功的通知 

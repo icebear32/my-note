@@ -1,10 +1,11 @@
 <script setup>
-import { EmailOutlined, LockOpenOutlined } from '@vicons/material'
 import { ref } from 'vue'
-import { noteBaseRequest } from "@/request/note_request"
-import { useMessage, useLoadingBar } from 'naive-ui'
-import { useLoginModalStore } from "@/stores/loginModalStore"
 import { useUserStore } from '@/stores/userStore'
+import { disabledBtn } from '@/utils/disabledBtn'
+import { useMessage, useLoadingBar } from 'naive-ui'
+import { noteBaseRequest } from "@/request/note_request"
+import { useLoginModalStore } from "@/stores/loginModalStore"
+import { EmailOutlined, LockOpenOutlined } from '@vicons/material'
 
 // 消息对象
 const message = useMessage()
@@ -73,7 +74,8 @@ const toLogin = (e) => {
     loginFormRef.value?.validate(async (errors) => {
         if (!errors) {
             loadingBar.start() // 加载条开始
-            loginBtnDisabled.value = true // 禁用登录按钮
+            // loginBtnDisabled.value = true // 禁用登录按钮
+            disabledBtn(loginBtnDisabled, true) // 禁用登录按钮
 
             // 发送登录请求
             const { data: responseData } = await noteBaseRequest.post(
@@ -86,22 +88,20 @@ const toLogin = (e) => {
                 // 发送请求失败（404，500，400，...）
                 loadingBar.error() // 加载条异常
                 message.error("发送登录请求失败") // 发送登录请求失败的通知
-
-                setTimeout(() => {
-                    loginBtnDisabled.value = false // 解除禁用登录按钮
-                }, 2500)
+                disabledBtn(loginBtnDisabled, false, true, 2.5) // 解除禁用登录按钮
 
                 throw "发送登录请求失败"
             })
 
             // 得到服务器返回的数据，进行处理
             console.log(responseData)
+            disabledBtn(loginBtnDisabled, false, true, 2.5) // 解除禁用登录按钮
             if (responseData.success) {
                 loadingBar.finish() // 加载条结束
                 message.success(responseData.message) // 显示登录成功的通知
                 changeLoginModalShowStatus(false) // 关闭登录模态框
                 localStorage.setItem("userToken", responseData.data.userToken) // 将查询 redis 中的用户关键词存到本地存储中
-                
+
                 const user = responseData.data.user; // 登录的用户信息
                 setUserInfo(
                     user.id,
@@ -115,11 +115,6 @@ const toLogin = (e) => {
                 loadingBar.error() // 加载条异常结束 
                 message.error(responseData.message) // 显示登录失败的通知 
             }
-
-
-            setTimeout(() => {
-                loginBtnDisabled.value = false // 解除禁用登录按钮
-            }, 2500)
         }
     })
 }
@@ -146,7 +141,8 @@ const toLogin = (e) => {
                 </n-input>
             </n-form-item>
             <n-form-item label="密码" path="password">
-                <n-input placeholder="请输入密码" type="password" show-password-on="click" v-model:value="loginFormValue.password">
+                <n-input placeholder="请输入密码" type="password" show-password-on="click"
+                    v-model:value="loginFormValue.password">
                     <template #prefix>
                         <n-icon :component="LockOpenOutlined" />
                     </template>

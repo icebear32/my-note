@@ -1,5 +1,6 @@
 <script setup>
 import bus from 'vue3-eventbus'
+import { disabledBtn } from '@/utils/disabledBtn'
 import { computed, ref, h, onBeforeUnmount } from 'vue'
 import { noteBaseRequest } from "@/request/note_request"
 import { getUserToken, loginInvalid } from '@/utils/userLoginUtil'
@@ -22,7 +23,7 @@ bus.on('newCreateThing', () => {
 })
 
 // 组件卸载之前停止监听
-onBeforeUnmount(()=>{
+onBeforeUnmount(() => {
     bus.off('newCreateThing') // 停止监听：新建小记事件
 })
 
@@ -132,6 +133,9 @@ const resetEditThing = () => {
     formValue.value.content = [] // 待办事项
 }
 
+// 保存按钮是否需要禁用 
+const saveBtnDisabled = ref(false)
+
 // // 新增小记的保存
 // const newCreateSave = async () => {
 //     // 判断用户的登录状态
@@ -210,7 +214,6 @@ const resetEditThing = () => {
 //         }
 //     }
 // }
-
 /**
  * 保存小记
  * @param {Boolean} isNewCreate 是否是新建小记
@@ -220,6 +223,7 @@ const save = async (isNewCreate) => {
     // 判断用户的登录状态
     const userToken = await getUserToken()
     loadingBar.start() // 加载条开始
+    disabledBtn(saveBtnDisabled, true) // 禁用保存按钮
     // 请求携带的参数
     const thingId = formValue.value.id
     const title = formValue.value.title
@@ -242,11 +246,13 @@ const save = async (isNewCreate) => {
     }).catch(() => {
         // 发送请求失败（404，500，400，...）
         loadingBar.error() // 加载条异常
+        disabledBtn(saveBtnDisabled, false, true, 2) // 解除禁用保存按钮
         throw message.error("保存失败") // 保存失败的通知
     })
 
     // 得到服务器返回的数据，进行处理
     console.log(responseData)
+    disabledBtn(saveBtnDisabled, false, true, 2) // 无论编辑和保存成功失败都解除禁用保存按钮
     if (responseData.success) {
         loadingBar.finish() // 加载条结束
         message.success(responseData.message) // 显示发送请求成功的通知
@@ -422,7 +428,8 @@ defineExpose({ showEditModal })
                             <n-button block tertiary @click="show = false">取消</n-button>
                         </n-gi>
                         <n-gi>
-                            <n-button block ghost type="primary" @click="saveEditThing">保存</n-button>
+                            <n-button :disabled="saveBtnDisabled" block ghost type="primary"
+                                @click="saveEditThing">保存</n-button>
                         </n-gi>
                     </n-grid>
                 </template>
