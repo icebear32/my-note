@@ -1,11 +1,9 @@
 <script setup>
-import { onMounted, watch } from "vue";
 import { storeToRefs } from 'pinia'
+import { onMounted, watch } from "vue"
+import RootViewVue from './views/RootView.vue'
 import { useUserStore } from "./stores/userStore"
 import { useThemeStore } from '@/stores/themeStore'
-import LoginModal from '@/components/login/LoginModal.vue'
-import MainTopToolbar from '@/components/toolbar/MainTopToolbar.vue'
-import MainLeftToolbar from "@/components/toolbar/MainLeftToolbar.vue";
 
 // ===== 主题 =====
 // 主题的共享资源
@@ -35,9 +33,6 @@ onMounted(() => {
       const newTheme = JSON.parse(event.newValue) // 新值
       // console.log(newTheme)
       changeTheme(newTheme.isDarkTheme) // 改变主题
-    } else if (event.key === 'user') {
-      // console.log('用户登录状态发生变化')
-      location.reload() // 用户登录状态发生变化：强制刷新页面
     }
   })
 })
@@ -47,27 +42,13 @@ onMounted(() => {
   <n-config-provider :theme="theme.name">
     <n-loading-bar-provider>
       <n-notification-provider>
-        <!-- n-message-provider：消息容器 -->
-        <n-message-provider>
-          <n-layout position="absolute">
-            <!-- 应用头 -->
-            <n-layout-header bordered style="height: 64px;padding: 0 20px;">
-              <MainTopToolbar />
-            </n-layout-header>
-            <n-layout position="absolute" style="top: 64px;" has-sider>
-              <!-- 左侧应用栏目 -->
-              <n-layout-sider bordered width="64px" content-style="padding: 24px 0;text-align: center;">
-                <MainLeftToolbar />
-              </n-layout-sider>
-              <!-- 主页面 -->
-              <n-layout-content>
-                <RouterView />
-              </n-layout-content>
-            </n-layout>
-          </n-layout>
-          <!-- 登录模态框 -->
-          <LoginModal />
-        </n-message-provider>
+        <!-- n-dialog-provider：对话框 -->
+        <n-dialog-provider>
+          <!-- n-message-provider：消息容器 -->
+          <n-message-provider>
+            <RootViewVue />
+          </n-message-provider>
+        </n-dialog-provider>
       </n-notification-provider>
     </n-loading-bar-provider>
   </n-config-provider>
