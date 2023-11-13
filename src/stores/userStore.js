@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 // 关于登录模态框的全局状态
 export const useUserStore = defineStore(
   "user",
   () => {
+    const token = ref(null) // 用户登录的 token 值
     const id = ref(null) // 编号
     const email = ref(null) // 邮箱
     const nickname = ref(null) // 昵称
@@ -44,6 +45,7 @@ export const useUserStore = defineStore(
 
     /**
      * 设置用户信息
+     * @param {String} u_token 用户登录的 token 值
      * @param {Number} u_id 编号
      * @param {String} u_email 邮箱
      * @param {String} u_nickname 昵称
@@ -51,7 +53,8 @@ export const useUserStore = defineStore(
      * @param {Number} u_level 等级
      * @param {String} u_time 注册时间
      */
-    const setUserInfo = (u_id, u_email, u_nickname, u_headPic, u_level, u_time) => {
+    const setUserInfo = (u_token, u_id, u_email, u_nickname, u_headPic, u_level, u_time) => {
+      token.value = u_token
       id.value = u_id
       email.value = u_email
       nickname.value = u_nickname
@@ -64,15 +67,24 @@ export const useUserStore = defineStore(
      * 重置用户信息 
      */
     const resetUserInfo = () => {
-      id.value = null
-      email.value = null
-      nickname.value = null
-      headPic.value = null
-      level.value = null
-      time.value = null
+      token.value = null
     }
 
-    return { id, nickname, nickName, headPic, level, levelInfo, time, head_image, setUserInfo, resetUserInfo }
+    watch(
+      () => token.value,
+      newData => {
+        if (newData === null) {
+          id.value = null
+          email.value = null
+          nickname.value = null
+          headPic.value = null
+          level.value = null
+          time.value = null
+        }
+      }
+    )
+
+    return { token, id, nickname, nickName, headPic, level, levelInfo, time, head_image, setUserInfo, resetUserInfo }
   },
   {
     persist: {

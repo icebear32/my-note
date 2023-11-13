@@ -94,16 +94,17 @@ const toLogin = (e) => {
             })
 
             // 得到服务器返回的数据，进行处理
-            console.log(responseData)
+            // console.log(responseData)
             disabledBtn(loginBtnDisabled, false, true, 2.5) // 解除禁用登录按钮
             if (responseData.success) {
                 loadingBar.finish() // 加载条结束
                 message.success(responseData.message) // 显示登录成功的通知
                 changeLoginModalShowStatus(false) // 关闭登录模态框
-                localStorage.setItem("userToken", responseData.data.userToken) // 将查询 redis 中的用户关键词存到本地存储中
-
+                
+                // localStorage.setItem("userToken", responseData.data.userToken) // 将查询 redis 中的用户关键词存到本地存储中
                 const user = responseData.data.user; // 登录的用户信息
                 setUserInfo(
+                    responseData.data.userToken,
                     user.id,
                     user.email,
                     user.nickname,

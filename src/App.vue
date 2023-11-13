@@ -1,17 +1,32 @@
 <script setup>
-import { onMounted } from "vue";
-import { useThemeStore } from '@/stores/themeStore'
+import { onMounted, watch } from "vue";
 import { storeToRefs } from 'pinia'
+import { useUserStore } from "./stores/userStore"
+import { useThemeStore } from '@/stores/themeStore'
 import LoginModal from '@/components/login/LoginModal.vue'
 import MainTopToolbar from '@/components/toolbar/MainTopToolbar.vue'
 import MainLeftToolbar from "@/components/toolbar/MainLeftToolbar.vue";
 
+// ===== 主题 =====
 // 主题的共享资源
 const themeStore = useThemeStore()
 // 主题
 const { theme } = storeToRefs(themeStore)
 // 改变主题
 const { changeTheme } = themeStore
+
+// ===== 用户 =====
+// 用户的共享资源
+const userStore = useUserStore()
+// 用户登录的 token 值
+const { token } = storeToRefs(userStore)
+// 如果用户的登录状态发生变化，重新加载页面
+watch(
+  () => token.value,
+  newData => {
+    if (newData !== null) location.reload()
+  }
+)
 
 onMounted(() => {
   window.addEventListener('storage', event => {
@@ -20,6 +35,9 @@ onMounted(() => {
       const newTheme = JSON.parse(event.newValue) // 新值
       // console.log(newTheme)
       changeTheme(newTheme.isDarkTheme) // 改变主题
+    } else if (event.key === 'user') {
+      // console.log('用户登录状态发生变化')
+      location.reload() // 用户登录状态发生变化：强制刷新页面
     }
   })
 })
