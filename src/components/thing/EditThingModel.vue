@@ -1,5 +1,6 @@
 <script setup>
-import { computed, ref, h } from 'vue'
+import bus from 'vue3-eventbus'
+import { computed, ref, h, onBeforeUnmount } from 'vue'
 import { noteBaseRequest } from "@/request/note_request"
 import { getUserToken, loginInvalid } from '@/utils/userLoginUtil'
 import { AddBoxRound, DeleteForeverFilled } from '@vicons/material'
@@ -14,6 +15,16 @@ const loadingBar = useLoadingBar()
 
 // 自定义事件
 const emits = defineEmits(['save'])
+
+// 监听是否触发了新建小记事件 -- 显示编辑小记窗口
+bus.on('newCreateThing', () => {
+    showEditModal(null)
+})
+
+// 组件卸载之前停止监听
+onBeforeUnmount(()=>{
+    bus.off('newCreateThing') // 停止监听：新建小记事件
+})
 
 // 是否显示编辑小记模态框
 const show = ref(false)
@@ -297,7 +308,8 @@ defineExpose({ showEditModal })
 </script>
 
 <template>
-    <n-modal v-model:show="show" :auto-focus="false" :on-after-leave="resetEditThing">
+    <n-modal v-model:show="show" :auto-focus="false" :on-after-leave="resetEditThing" transform-origin="center"
+        :mask-closable="false">
         <div>
             <!-- 骨架屏卡片 -->
             <n-card v-show="loading" size="small" :bordered="false" style="width: 460px;">

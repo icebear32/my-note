@@ -5,6 +5,7 @@ import 'vfonts/FiraCode.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import eventBus from 'vue3-eventbus'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 import App from './App.vue'
@@ -15,6 +16,7 @@ pinia.use(piniaPluginPersistedstate)
 
 const app = createApp(App)
 
+app.use(eventBus)
 app.use(pinia)
 app.use(router)
 
