@@ -1,6 +1,6 @@
 <script setup>
 import { storeToRefs } from 'pinia'
-import { onMounted, watch } from "vue"
+import { onMounted, ref, provide } from "vue"
 import RootViewVue from './views/RootView.vue'
 import { useUserStore } from "./stores/userStore"
 import { useThemeStore } from '@/stores/themeStore'
@@ -10,29 +10,38 @@ import { useThemeStore } from '@/stores/themeStore'
 const themeStore = useThemeStore()
 // 主题
 const { theme } = storeToRefs(themeStore)
-// 改变主题
-const { changeTheme } = themeStore
 
 // ===== 用户 =====
 // 用户的共享资源
 const userStore = useUserStore()
-// 用户登录的 token 值
-const { token } = storeToRefs(userStore)
-// 如果用户的登录状态发生变化，重新加载页面
-watch(
-  () => token.value,
-  newData => {
-    if (newData !== null) location.reload()
-  }
-)
+
+// 是否需要重新加载页面
+const needReload = ref(false)
+
+// 为后代组件提供数据
+provide('needReload', needReload)
 
 onMounted(() => {
   window.addEventListener('storage', event => {
     // 监听主题是否发生改变
     if (event.key === 'theme') {
-      const newTheme = JSON.parse(event.newValue) // 新值
-      // console.log(newTheme)
-      changeTheme(newTheme.isDarkTheme) // 改变主题
+
+      // const newTheme = JSON.parse(event.newValue) // 新值
+      // changeTheme(newTheme.isDarkTheme) // 改变主题
+      themeStore.$hydrate() // 将本地存储的主题数据恢复到 store 中
+    } else if (event.key === 'user') {
+      // 判断是否是 token 值发生变化
+      const newToken = JSON.parse(event.newValue).token
+      const oldToken = JSON.parse(event.oldValue).token
+      if (newToken === oldToken) {
+        userStore.$hydrate() // 将本地存储的用户数据恢复到 store 中
+      } else {
+        // 需要重新加载页面
+        needReload.value = true
+        setTimeout(() => {
+          needReload.value = false
+        }, 1000)
+      }
     }
   })
 })

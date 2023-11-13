@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from "vue"
+import { ref, inject } from "vue"
 import { useDialog } from 'naive-ui'
 import LoginModal from '@/components/login/LoginModal.vue'
 import MainTopToolbar from '@/components/toolbar/MainTopToolbar.vue'
@@ -7,6 +7,19 @@ import MainLeftToolbar from "@/components/toolbar/MainLeftToolbar.vue"
 
 // 对话框对象
 const dialog = useDialog()
+
+// 接收祖先组件提供的数据：是否重新加载页面
+const needReload = inject('needReload')
+
+// 如果 needReload 的值为 true 时，则重新加载页面的对话框
+watch(
+    () => needReload.value,
+    newData => {
+        if (newData) {
+            changeLoginStatusDialog() // 弹出重新加载页面的对话框
+        }
+    }
+)
 
 // 登录改变状态的对话框
 const loginStatusDialog = ref(null)
@@ -35,15 +48,6 @@ const changeLoginStatusDialog = () => {
         })
     }
 }
-
-onMounted(() => {
-    window.addEventListener('storage', event => {
-        // 监听登录状态是否发生改变
-        if (event.key === 'user') {
-            changeLoginStatusDialog() // 登录状态发生改变的对话框
-        }
-    })
-})
 </script>
 
 <template>
