@@ -2,7 +2,7 @@
 import { storeToRefs } from 'pinia'
 import { onMounted, ref, provide } from "vue"
 import RootViewVue from './views/RootView.vue'
-import { useUserStore } from "./stores/userStore"
+import { useUserStore } from "@/stores/userStore"
 import { useThemeStore } from '@/stores/themeStore'
 
 // ===== 主题 =====

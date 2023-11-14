@@ -36,6 +36,11 @@ const onCreateTuDoThing = () => ({
     thing: '' // 待办事项
 })
 
+// 该小记用户的编号
+const userId = ref(null)
+// 小记的编号
+const thingId = computed(() => formValue.value.id)
+
 // 编辑小记表单值
 const formValue = ref({
     id: null, // 小记编号（修改的用户）
@@ -285,7 +290,8 @@ const getEditThing = async (thingId) => {
         }
     ).catch(() => {
         // 发送请求失败（404，500，400，...）
-        loadingBar.error() // 加载条异常
+        loadingBar.error() // 加载条异常结束
+        show.value = false //   关闭编辑小记的窗口
         throw message.error("获取小记列表请求失败") // 获取编辑小记列表请求失败的通知
     })
     // 得到服务器返回的数据，进行处理
@@ -294,6 +300,7 @@ const getEditThing = async (thingId) => {
         loadingBar.finish() // 加载条结束
 
         const editThing = responseData.data
+        userId.value = editThing.userId // 当前小记的用户编号
         formValue.value.title = editThing.title // 标题
         formValue.value.top = !!editThing.top // 置顶
         formValue.value.tags = editThing.tags.split(',') // 标签 ['IT','计算机','科学']
@@ -302,6 +309,7 @@ const getEditThing = async (thingId) => {
         loading.value = false // 加载已结束
     } else {
         loadingBar.error() // 加载条异常结束 
+        show.value = false //   关闭编辑小记的窗口
         message.error(responseData.message) // 显示发送请求失败的通知 
         if (responseData.code === "L_008") {
             loginInvalid(true) // 登录失效
@@ -310,7 +318,7 @@ const getEditThing = async (thingId) => {
 }
 
 // 将哪些函数导出
-defineExpose({ showEditModal })
+defineExpose({ showEditModal, show, userId, thingId })
 </script>
 
 <template>

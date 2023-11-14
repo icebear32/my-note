@@ -1,20 +1,41 @@
 <script setup>
-import { computed, ref } from 'vue'
+import gsap from "gsap"
 import { storeToRefs } from "pinia"
-import { useMessage, useLoadingBar } from 'naive-ui'
+import { computed, ref } from 'vue'
+import { useUserStore } from "@/stores/userStore"
 import { useThemeStore } from '@/stores/themeStore'
-import { getUserToken, loginInvalid } from '@/utils/userLoginUtil'
-import { noteBaseRequest } from "@/request/note_request"
+import { useMessage, useLoadingBar } from 'naive-ui'
 import { SubtitlesOffOutlined } from '@vicons/material'
 import ThingCard from "@/components/thing/ThingCard.vue"
-import gsap from "gsap"
-import DeleteRemindDialog from '@/components/remind/DeleteRemindDialog.vue'
+import { noteBaseRequest } from "@/request/note_request"
 import EditThingModel from '@/components/thing/EditThingModel.vue'
+import { getUserToken, loginInvalid } from '@/utils/userLoginUtil'
+import DeleteRemindDialog from '@/components/remind/DeleteRemindDialog.vue'
 
 // 消息对象
 const message = useMessage()
 // 加载条对象
 const loadingBar = useLoadingBar()
+
+// 用户的共享资源
+const userStore = useUserStore()
+const { token, id: user_id } = storeToRefs(userStore)
+
+watch(
+    () => token.value,
+    newData => {
+        // 是否重新进行登录
+        if (newData !== null) {
+            loading.value = true // 处于加载状态
+            getThingList(true, false) // 重新获取用户的小记列表
+            // 判断编辑小记的窗口是否需要关闭
+            if (editThingModalRef.value.thingId != null && editThingModalRef.value.userId !== user_id.value) {
+                editThingModalRef.value.show = false // 关闭编辑小记的窗口
+            }
+        }
+    }
+)
+
 // 主题 store 对象
 const themeStore = useThemeStore()
 const { isDarkTheme } = storeToRefs(themeStore) // 是否为暗系主题
