@@ -16,7 +16,7 @@ export const useUserStore = defineStore(
     // 用户头像地址
     const head_image = computed(() => {
       // 如果用户暂无图像，则使用默认头像，否则使用自己的图像
-      if (headPic.value === null) {
+      if (headPic.value === null || headPic.value === undefined) {
         return "https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg"
       } else {
         return headPic.value
@@ -26,7 +26,7 @@ export const useUserStore = defineStore(
     // 用户昵称
     const nickName = computed(() => {
       // 如果用户暂无昵称，则使用默认昵称，否则使用自己的昵称
-      if (nickname.value === null) {
+      if (nickname.value === null || headPic.value === undefined) {
         return "暂无设置昵称"
       } else {
         return nickname.value
