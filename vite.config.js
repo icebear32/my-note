@@ -34,11 +34,12 @@ export default defineConfig({
     }
   },
   server: {
+    port: 18080, // 端口号
     proxy: {
-      '/note': {
-        target: 'http://127.0.0.1:18081/ich-notes', // 代理地址
-        changeOrigin: true, //允许跨域
-        rewrite: path => path.replace(/^\/note/, '')
+      '/note-serve': {
+        target: 'http://127.0.0.1:18081', // 代理地址
+        changeOrigin: true, // 允许跨域
+        rewrite: path => path.replace(/^\/note-serve/, '')
       }
     }
   }

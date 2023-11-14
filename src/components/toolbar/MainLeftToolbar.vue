@@ -105,9 +105,8 @@ const mainMenus = [
     <n-space vertical :size="16">
         <n-popover v-for="menu in mainMenus" :key="menu.label" placement="right" :show-arrow="false">
             <template #trigger>
-                <n-button 
-                style="width: 34px;padding: 0;"
-                :text="routerPath !== menu.to" :type="routerPath === menu.to ? 'primary' : 'default'"
+                <n-button style="width: 34px;padding: 0;" :quaternary="routerPath !== menu.to"
+                    :type="routerPath === menu.to ? 'primary' : 'default'"
                     :tertiary="routerPath === menu.to ? 'primary' : false" @click="router.push(menu.to)">
                     <n-icon :size="menu.icon_size" :component="menu.icon"></n-icon>
                 </n-button>
