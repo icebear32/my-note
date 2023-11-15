@@ -53,6 +53,7 @@ const beforeLeave = (el) => {
         gsap.set(el, {
             position: 'absolute',
             boxShadow: '0 0 5px black',
+            width: 'calc(100% - 24px)',
             zIndex: 1,
             top,
             left,
@@ -64,13 +65,9 @@ const beforeLeave = (el) => {
 // 执行隐藏动画
 const leaveEvent = (el, done) => {
     if (hiddemAnimation) {
-        let tl = gsap.timeline() // 创建时间线动画
-        tl.to(el, {
-            scale: 1.3, // 缩放
-            duration: 0.25, //动画时间（秒）
-        }).to(el, {
+        gsap.to(el, {
             scale: 0, // 缩放
-            duration: 0.25, //动画时间（秒）
+            duration: 0.5, //动画时间（秒）
             onComplete: done // 动画执行完毕后调用的函数
         })
     } else {
