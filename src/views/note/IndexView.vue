@@ -11,9 +11,6 @@ const message = useMessage()
 // 加载条对象
 const loadingBar = useLoadingBar()
 
-// 笔记列表容器是否被收缩
-const collapsed = ref(false)
-
 // 笔记列表
 const noteList = ref([])
 
@@ -60,9 +57,8 @@ getNoteList()
     <!-- 笔记页面容器 -->
     <n-layout has-sider>
         <!-- 笔记列表容器（可收缩的） -->
-        <n-layout-sider bordered show-trigger :width="340" class="note-list" collapse-mode="width" :collapsed-width="0"
-            :collapsed="collapsed" @collapse="collapsed = true" @expand="collapsed = false">
-            
+        <n-layout-sider bordered show-trigger :width="340" class="note-list" :collapsed-width="0" :collapsed="collapsed">
+
             <n-scrollbar style="max-height: 100%;">
                 <!-- 标题区域，新增笔记按钮 -->
                 <n-card :bordered="false" style="position: sticky;top: 0;z-index: 1;">
