@@ -1,15 +1,18 @@
 <script setup>
 import { ref } from "vue"
-import { PlusRound } from "@vicons/material"
 import { useMessage, useLoadingBar } from 'naive-ui'
 import NoteCard from "@/components/note/NoteCard.vue"
 import { noteBaseRequest } from "@/request/note_request"
 import { getUserToken, loginInvalid } from '@/utils/userLoginUtil'
+import { PlusRound, SubtitlesOffOutlined } from "@vicons/material"
 
 // 消息对象
 const message = useMessage()
 // 加载条对象
 const loadingBar = useLoadingBar()
+
+// 是否处于加载状态
+const loading = ref(true)
 
 // 笔记列表
 const noteList = ref([])
@@ -41,6 +44,7 @@ const getNoteList = async () => {
     if (responseData.success) {
         loadingBar.finish() // 加载条结束
         noteList.value = responseData.data // 封装笔记列表
+        loading.value = false // 加载状态已结束
     } else {
         loadingBar.error() // 加载条异常结束 
         message.error(responseData.message) // 显示发送请求失败的通知 
@@ -71,12 +75,32 @@ getNoteList()
                         </n-space>
                     </template>
                 </n-card>
+
+                <!-- 笔记列表骨架屏 -->
+                <n-space v-if="loading" vertical style="margin: 12px;">
+                    <n-card size="small" v-for="n in 3" :key="n">
+                        <n-space vertical>
+                            <n-skeleton :height="26" :width="120"></n-skeleton>
+                            <n-skeleton text :repeat="2"></n-skeleton>
+                            <n-skeleton :height="23" :width="200"></n-skeleton>
+                        </n-space>
+                    </n-card>
+                </n-space>
                 <!-- 笔记列表 -->
-                <n-list hoverable clickable style="margin: 5px;">
+                <n-list v-else-if="noteList.length > 0" hoverable clickable style="margin: 5px;">
                     <n-list-item v-for="n in noteList" :key="n.id">
                         <NoteCard :id="n.id" :title="n.title" :desc="n.body" :top="!!n.top" :time="n.updateTime"></NoteCard>
                     </n-list-item>
                 </n-list>
+                <!-- 暂无笔记列表的描述 -->
+                <n-empty v-else style="width: max-content;position: absolute;top: 50%;left: 50%;transform: translate(-105px, -79px);" size="huge" description="暂无笔记列表，创建新的笔记">
+                    <template #icon>
+                        <n-icon :component="SubtitlesOffOutlined"></n-icon>
+                    </template>
+                    <template #extra>
+                        <n-button dashed>创建笔记</n-button>
+                    </template>
+                </n-empty>
             </n-scrollbar>
 
         </n-layout-sider>
