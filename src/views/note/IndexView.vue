@@ -1,4 +1,5 @@
 <script setup>
+import gsap from "gsap"
 import { ref } from "vue"
 import { useMessage, useLoadingBar } from 'naive-ui'
 import NoteCard from "@/components/note/NoteCard.vue"
@@ -17,12 +18,80 @@ const loading = ref(true)
 // 笔记列表
 const noteList = ref([])
 
+// ===== 执行动画 =====
+// 显示笔记卡片是否需要延迟动画
+let enterDelay = true
+// 隐藏笔记卡片是否需要动画
+let hiddemAnimation = true
+
+// 执行显示动画之前的初始位置
+const beforeEnter = (el) => {
+    gsap.set(el, {
+        x: 30,
+        opacity: 0
+    })
+}
+
+// 执行显示动画
+const enterEvent = (el, done) => {
+    gsap.to(el, {
+        x: 0, // 偏移量
+        opacity: 1, // 透明度
+        duration: 0.5, //秒
+        delay: () => (enterDelay ? el.dataset.index * 0.12 : 0), // 延迟动画
+        onComplete: done // 动画执行完毕后调用的函数
+    })
+}
+
+// 执行隐藏动画之前的初始位置
+const beforeLeave = (el) => {
+    if (hiddemAnimation) {
+        // 获取删除的元素距离父组件的左和上位置
+        const left = el.offsetLeft
+        const top = el.offsetTop
+        // 设置删除组件的属性（需要脱离文档里）
+        gsap.set(el, {
+            position: 'absolute',
+            boxShadow: '0 0 5px black',
+            zIndex: 1,
+            top,
+            left,
+            backdropFilter: 'blur(5px)'
+        })
+    }
+}
+
+// 执行隐藏动画
+const leaveEvent = (el, done) => {
+    if (hiddemAnimation) {
+        let tl = gsap.timeline() // 创建时间线动画
+        tl.to(el, {
+            scale: 1.3, // 缩放
+            duration: 0.25, //动画时间（秒）
+        }).to(el, {
+            scale: 0, // 缩放
+            duration: 0.25, //动画时间（秒）
+            onComplete: done // 动画执行完毕后调用的函数
+        })
+    } else {
+        gsap.to(el, {
+            duration: 0, //动画时间（秒）
+            onComplete: done // 动画执行完毕后调用的函数
+        })
+    }
+}
+
 /**
  * 获取笔记列表
+ * @param {Boolean} ed 显示笔记卡片是否需要延迟动画
+ * @param {Boolean} ha 隐藏笔记卡片是否需要动画
  * 
  * @returns {Promise<void>}
  */
-const getNoteList = async () => {
+const getNoteList = async (ed, ha) => {
+    enterDelay = ed // 显示笔记卡片是否需要延迟动画
+    hiddemAnimation = ha // 隐藏笔记卡片是否需要动画
+
     // 判断用户的登录状态
     const userToken = await getUserToken()
     loadingBar.start() // 加载条开始
@@ -54,7 +123,7 @@ const getNoteList = async () => {
     }
 }
 // 获取笔记列表
-getNoteList()
+getNoteList(true, true)
 </script>
 
 <template>
@@ -87,13 +156,21 @@ getNoteList()
                     </n-card>
                 </n-space>
                 <!-- 笔记列表 -->
-                <n-list v-else-if="noteList.length > 0" hoverable clickable style="margin: 5px;">
-                    <n-list-item v-for="n in noteList" :key="n.id">
-                        <NoteCard :id="n.id" :title="n.title" :desc="n.body" :top="!!n.top" :time="n.updateTime"></NoteCard>
-                    </n-list-item>
+                <n-list hoverable clickable style="margin: 5px;">
+                    <TransitionGroup @before-enter="beforeEnter" @enter="enterEvent" @before-leave="beforeLeave"
+                        @leave="leaveEvent" move-class="move-transition">
+                        <template v-if="!loading && noteList.length > 0">
+                            <n-list-item v-for="(n, index) in noteList" :key="n.id" :data-index="index">
+                                <NoteCard :id="n.id" :title="n.title" :desc="n.body" :top="!!n.top" :time="n.updateTime">
+                                </NoteCard>
+                            </n-list-item>
+                        </template>
+                    </TransitionGroup>
                 </n-list>
                 <!-- 暂无笔记列表的描述 -->
-                <n-empty v-else style="width: max-content;position: absolute;top: 50%;left: 50%;transform: translate(-105px, -79px);" size="huge" description="暂无笔记列表，创建新的笔记">
+                <n-empty v-if="!loading && noteList.length === 0"
+                    style="width: max-content;position: absolute;top: 50%;left: 50%;transform: translate(-105px, -79px);"
+                    size="huge" description="暂无笔记列表，创建新的笔记">
                     <template #icon>
                         <n-icon :component="SubtitlesOffOutlined"></n-icon>
                     </template>
@@ -119,5 +196,9 @@ getNoteList()
 
 .n-layout-sider.note-list .n-layout-toggle-button {
     transition: right 1s;
+}
+
+.n-list .n-list-item.move-transition {
+    transition: all 0.5s;
 }
 </style>
