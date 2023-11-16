@@ -1,11 +1,11 @@
 <script setup>
 import gsap from "gsap"
-import { ref } from "vue"
-import { useMessage, useLoadingBar } from 'naive-ui'
+import { ref, h, computed } from "vue"
+import { useMessage, useLoadingBar, NIcon } from 'naive-ui'
 import NoteCard from "@/components/note/NoteCard.vue"
 import { noteBaseRequest } from "@/request/note_request"
 import { getUserToken, loginInvalid } from '@/utils/userLoginUtil'
-import { PlusRound, SubtitlesOffOutlined } from "@vicons/material"
+import { PlusRound, SubtitlesOffOutlined, DriveFileRenameOutlineOutlined, DeleteOutlineRound, ArrowCircleUpRound, ArrowCircleDownRound } from "@vicons/material"
 
 // 消息对象
 const message = useMessage()
@@ -121,6 +121,67 @@ const getNoteList = async (ed, ha) => {
 }
 // 获取笔记列表
 getNoteList(true, true)
+
+// ===== 右击菜单 =====
+// 读取图标
+const renderIcon = icon => {
+    return () => h(NIcon, null, { default: () => h(icon) })
+}
+
+// 右击菜单对象
+const contextMenu = ref({
+    show: false, // 是否显示右键菜单
+    id: null, // 笔记编号
+    title: '', // 笔记标题
+    top: false, // 笔记是否置顶
+    x: 0, // x 坐标
+    y: 0, // y 坐标
+    options: computed(() => {
+        return [
+            {
+                label: "重命名",
+                key: "rename",
+                icon: renderIcon(DriveFileRenameOutlineOutlined)
+            },
+            {
+                label: "删除",
+                key: "delete",
+                icon: renderIcon(DeleteOutlineRound)
+            },
+            {
+                label: "取消置顶",
+                key: "cancel-top",
+                icon: renderIcon(ArrowCircleDownRound),
+                show: contextMenu.value.top
+            },
+            {
+                label: "置顶",
+                key: "top",
+                icon: renderIcon(ArrowCircleUpRound),
+                show: !contextMenu.value.top
+            }
+        ]
+    })
+})
+
+// 展示右键菜单
+const showContextMenu = (e, id, top, title) => {
+    e.preventDefault()
+    contextMenu.value.show = false
+    nextTick().then(() => {
+        contextMenu.value.show = true
+        contextMenu.value.id = id
+        contextMenu.value.top = top
+        contextMenu.value.title = title
+        contextMenu.value.x = e.clientX
+        contextMenu.value.y = e.clientY
+    })
+}
+
+// 点击右击菜单的外界
+const clickContextMenuOutside = () => {
+    contextMenu.value.show = false
+}
 </script>
 
 <template>
@@ -128,7 +189,6 @@ getNoteList(true, true)
     <n-layout has-sider>
         <!-- 笔记列表容器（可收缩的） -->
         <n-layout-sider bordered show-trigger :width="340" class="note-list" :collapsed-width="0" :collapsed="collapsed">
-
             <n-scrollbar style="max-height: 100%;">
                 <!-- 标题区域，新增笔记按钮 -->
                 <n-card :bordered="false" style="position: sticky;top: 0;z-index: 1;">
@@ -141,7 +201,6 @@ getNoteList(true, true)
                         </n-space>
                     </template>
                 </n-card>
-
                 <!-- 笔记列表骨架屏 -->
                 <n-space v-if="loading" vertical style="margin: 12px;">
                     <n-card size="small" v-for="n in 3" :key="n">
@@ -157,7 +216,9 @@ getNoteList(true, true)
                     <TransitionGroup @before-enter="beforeEnter" @enter="enterEvent" @before-leave="beforeLeave"
                         @leave="leaveEvent" move-class="move-transition">
                         <template v-if="!loading && noteList.length > 0">
-                            <n-list-item v-for="(n, index) in noteList" :key="n.id" :data-index="index">
+                            <n-list-item v-for="(n, index) in noteList" :key="n.id" :data-index="index"
+                                @contextmenu="showContextMenu($event, n.id, !!n.top, n.title)"
+                                :class="{ 'contexting': contextMenu.id === n.id && contextMenu.show }">
                                 <NoteCard :id="n.id" :title="n.title" :desc="n.body" :top="!!n.top" :time="n.updateTime">
                                 </NoteCard>
                             </n-list-item>
@@ -176,9 +237,11 @@ getNoteList(true, true)
                     </template>
                 </n-empty>
             </n-scrollbar>
-
         </n-layout-sider>
     </n-layout>
+    <!-- 右键菜单 -->
+    <n-dropdown :options="contextMenu.options" placement="bottom-start" trigger="manual" :x="contextMenu.x"
+        :y="contextMenu.y" :show="contextMenu.show" :on-clickoutside="clickContextMenuOutside" />
 </template>
 
 <style>
@@ -197,5 +260,9 @@ getNoteList(true, true)
 
 .n-list .n-list-item.move-transition {
     transition: all 0.5s;
+}
+
+.n-list .n-list-item.contexting {
+    box-shadow: 0 0 5px #18A058;
 }
 </style>
