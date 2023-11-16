@@ -182,6 +182,53 @@ const showContextMenu = (e, id, top, title) => {
 const clickContextMenuOutside = () => {
     contextMenu.value.show = false
 }
+
+// 选择了右键菜单选项
+const selectContextMenu = (key) => {
+    contextMenu.value.show = false // 关闭右键菜单
+    // message.info(String(key))
+    // console.log(key)
+    if (key === 'cancel-top') {
+        topNote(false) // 取消置顶
+    } else if (key === 'top') {
+        topNote(true) // 置顶
+    }
+}
+
+/**
+ * 置顶笔记
+ * @param {Boolean} isTop 是否为置顶请求
+ */
+const topNote = async isTop => {
+    // 判断用户的登录状态
+    const userToken = await getUserToken()
+    loadingBar.start() // 加载条开始
+
+    // 发送置顶笔记请求
+    const { data: responseData } = await noteBaseRequest.get(
+        "/note/top",
+        {
+            params: { isTop, noteId: contextMenu.value.id },
+            headers: { userToken }
+        }
+    ).catch(() => {
+        // 发送请求失败（404，500，400，...）
+        loadingBar.error() // 加载条异常
+        throw message.error(isTop ? "置顶笔记请求失败" : "取消置顶笔记请求失败") // 请求失败的通知
+    })
+    // 得到服务器返回的数据，进行处理
+    if (responseData.success) {
+        loadingBar.finish() // 加载条结束
+        message.success(responseData.message) // 显示发送请求成功的通知
+        getNoteList(false, false) // 重新获取笔记列表
+    } else {
+        loadingBar.error() // 加载条异常结束 
+        message.error(responseData.message) // 显示发送请求失败的通知
+        if (responseData.code === "L_008") {
+            loginInvalid(true) // 登录失效
+        }
+    }
+}
 </script>
 
 <template>
@@ -241,7 +288,8 @@ const clickContextMenuOutside = () => {
     </n-layout>
     <!-- 右键菜单 -->
     <n-dropdown :options="contextMenu.options" placement="bottom-start" trigger="manual" :x="contextMenu.x"
-        :y="contextMenu.y" :show="contextMenu.show" :on-clickoutside="clickContextMenuOutside" />
+        :y="contextMenu.y" :show="contextMenu.show" :on-clickoutside="clickContextMenuOutside"
+        @select="selectContextMenu" />
 </template>
 
 <style>
