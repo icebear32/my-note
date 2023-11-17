@@ -5,6 +5,7 @@ import { useMessage, useLoadingBar, NIcon } from 'naive-ui'
 import NoteCard from "@/components/note/NoteCard.vue"
 import { noteBaseRequest } from "@/request/note_request"
 import { getUserToken, loginInvalid } from '@/utils/userLoginUtil'
+import DeleteRemindDialog from '@/components/remind/DeleteRemindDialog.vue'
 import { PlusRound, SubtitlesOffOutlined, DriveFileRenameOutlineOutlined, DeleteOutlineRound, ArrowCircleUpRound, ArrowCircleDownRound } from "@vicons/material"
 
 // 消息对象
@@ -192,9 +193,12 @@ const selectContextMenu = (key) => {
         topNote(false) // 取消置顶
     } else if (key === 'top') {
         topNote(true) // 置顶
+    } else if (key === 'delete') {
+        displayDeleteRemind.value = true // 显示删除提醒框
     }
 }
 
+// ===== 置顶笔记 =====
 /**
  * 置顶笔记
  * @param {Boolean} isTop 是否为置顶请求
@@ -221,6 +225,52 @@ const topNote = async isTop => {
         loadingBar.finish() // 加载条结束
         message.success(responseData.message) // 显示发送请求成功的通知
         getNoteList(false, false) // 重新获取笔记列表
+    } else {
+        loadingBar.error() // 加载条异常结束 
+        message.error(responseData.message) // 显示发送请求失败的通知
+        if (responseData.code === "L_008") {
+            loginInvalid(true) // 登录失效
+        }
+    }
+}
+
+
+// ===== 删除笔记提醒框 =====
+// 删除提醒框的显示状态
+const displayDeleteRemind = ref(false)
+
+/**
+ * 删除笔记
+ * @param {Boolean} complete 是否彻底删除
+ */
+const toDeleteNote = async complete => {
+    displayDeleteRemind.value = false // 关闭提醒框
+
+    // 判断用户的登录状态
+    const userToken = await getUserToken()
+    loadingBar.start() // 加载条开始
+
+    // 发送删除笔记请求
+    const { data: responseData } = await noteBaseRequest.delete(
+        "/note/delete",
+        {
+            params: {
+                complete,
+                isRecycleBin: false,
+                noteId: contextMenu.value.id
+            },
+            headers: { userToken }
+        }
+    ).catch(() => {
+        // 发送请求失败（404，500，400，...）
+        loadingBar.error() // 加载条异常
+        throw message.error(complete ? "彻底删除笔记请求失败" : "删除笔记请求失败") // 请求失败的通知
+    })
+    // 得到服务器返回的数据，进行处理
+    if (responseData.success) {
+        loadingBar.finish() // 加载条结束
+        message.success(responseData.message) // 显示发送请求成功的通知 
+        getNoteList(false, true) // 重新获取笔记列表(需要有删除动画)
     } else {
         loadingBar.error() // 加载条异常结束 
         message.error(responseData.message) // 显示发送请求失败的通知
@@ -286,6 +336,10 @@ const topNote = async isTop => {
             </n-scrollbar>
         </n-layout-sider>
     </n-layout>
+    <!-- 删除提醒框 -->
+    <DeleteRemindDialog :show="displayDeleteRemind" :title="contextMenu.title" @delete="toDeleteNote"
+        @cancel="displayDeleteRemind = false">
+    </DeleteRemindDialog>
     <!-- 右键菜单 -->
     <n-dropdown :options="contextMenu.options" placement="bottom-start" trigger="manual" :x="contextMenu.x"
         :y="contextMenu.y" :show="contextMenu.show" :on-clickoutside="clickContextMenuOutside"
