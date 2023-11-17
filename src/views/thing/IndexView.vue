@@ -188,12 +188,12 @@ const leaveEvent = (el, done) => {
 const deleteRemind = ref({
     show: false, // 是否显示
     id: null, // 小记编号
-    desc: null, // 提醒框的描述内容
+    title: null, // 删除单个文件的名称
 })
 // 显示删除小记提醒框
 const showDeleteRemindDialog = ({ id, title }) => {
     deleteRemind.value.id = id // 将要删除的小记编号
-    deleteRemind.value.desc = "删除《" + title + "》将会在回收站中恢复，彻底删除则无法恢复！" // 删除提醒框的描述内容
+    deleteRemind.value.title = title // 删除小记的标题
     deleteRemind.value.show = true // 显示删除提醒框
 }
 /**
@@ -334,7 +334,7 @@ const editThingModalRef = ref(null)
         </n-card>
     </n-layout>
     <!-- 删除提醒框 -->
-    <DeleteRemindDialog :show="deleteRemind.show" :describe="deleteRemind.desc" @delete="toDeleteThing"
+    <DeleteRemindDialog :show="deleteRemind.show" :title="deleteRemind.title" @delete="toDeleteThing"
         @cancel="deleteRemind.show = false"></DeleteRemindDialog>
     <!-- 编辑小记窗口 -->
     <EditThingModel ref="editThingModalRef" @save="getThingList"></EditThingModel>
