@@ -173,7 +173,7 @@ const showContextMenu = (e, id, top, title) => {
         contextMenu.value.show = true
         contextMenu.value.id = id
         contextMenu.value.top = top
-        contextMenu.value.title = title
+        contextMenu.value.title = title ? title : defaultTitle
         contextMenu.value.x = e.clientX
         contextMenu.value.y = e.clientY
     })
@@ -279,6 +279,42 @@ const toDeleteNote = async complete => {
         }
     }
 }
+
+// ===== 笔记创建操作 =====
+
+let defaultTitle = '暂无设置标题'
+
+// 创建笔记
+const CreateNote = async () => {
+    // 判断用户的登录状态
+    const userToken = await getUserToken()
+    loadingBar.start() // 加载条开始
+
+    // 发送创建笔记请求
+    const { data: responseData } = await noteBaseRequest.put(
+        "/note/create",
+        {},
+        {
+            headers: { userToken }
+        }
+    ).catch(() => {
+        // 发送请求失败（404，500，400，...）
+        loadingBar.error() // 加载条异常
+        throw message.error("创建请求失败") // 请求失败的通知
+    })
+    // 得到服务器返回的数据，进行处理
+    if (responseData.success) {
+        loadingBar.finish() // 加载条结束
+        message.success(responseData.message) // 显示发送请求成功的通知 
+        getNoteList(false, false) // 重新获取笔记列表(新增笔记不需要有显示的延迟效果)
+    } else {
+        loadingBar.error() // 加载条异常结束 
+        message.error(responseData.message) // 显示发送请求失败的通知
+        if (responseData.code === "L_008") {
+            loginInvalid(true) // 登录失效
+        }
+    }
+}
 </script>
 
 <template>
@@ -292,7 +328,8 @@ const toDeleteNote = async complete => {
                     <template #action>
                         <n-space align="center" justify="space-between">
                             <h3 style="margin: 0;">笔记列表</h3>
-                            <n-button circle type="primary">
+                            <!-- 创建笔记按钮 -->
+                            <n-button circle type="primary" @click="CreateNote">
                                 <n-icon size="22" :component="PlusRound">新增</n-icon>
                             </n-button>
                         </n-space>
@@ -316,7 +353,8 @@ const toDeleteNote = async complete => {
                             <n-list-item v-for="(n, index) in noteList" :key="n.id" :data-index="index"
                                 @contextmenu="showContextMenu($event, n.id, !!n.top, n.title)"
                                 :class="{ 'contexting': contextMenu.id === n.id && contextMenu.show }">
-                                <NoteCard :id="n.id" :title="n.title" :desc="n.body" :top="!!n.top" :time="n.updateTime">
+                                <NoteCard :id="n.id" :title="n.title ? n.title : defaultTitle" :desc="n.body" :top="!!n.top"
+                                    :time="n.updateTime">
                                 </NoteCard>
                             </n-list-item>
                         </template>

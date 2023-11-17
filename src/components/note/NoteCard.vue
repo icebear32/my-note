@@ -4,7 +4,7 @@ import { htmlToText } from "html-to-text"
 defineProps({
     id: { type: Number, required: true }, // 编号
     title: { type: String, required: true }, // 标题
-    desc: { type: String, required: true }, // 简介
+    desc: { type: String, default: () => "暂无内容" }, // 简介
     top: { type: Boolean, default: false }, // 是否置顶
     time: { type: String, required: true }, // 时间（最后一次操作的时间）
 })
