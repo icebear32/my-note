@@ -1,5 +1,6 @@
 <script setup>
 import gsap from "gsap"
+import { useRouter } from 'vue-router'
 import { ref, h, computed } from "vue"
 import { useMessage, useLoadingBar, NIcon } from 'naive-ui'
 import NoteCard from "@/components/note/NoteCard.vue"
@@ -12,6 +13,9 @@ import { PlusRound, SubtitlesOffOutlined, DriveFileRenameOutlineOutlined, Delete
 const message = useMessage()
 // 加载条对象
 const loadingBar = useLoadingBar()
+
+// 路由对象
+const router = useRouter()
 
 // 是否处于加载状态
 const loading = ref(true)
@@ -280,7 +284,7 @@ const toDeleteNote = async complete => {
     }
 }
 
-// ===== 笔记创建操作 =====
+// ===== 笔记创建操作===== 
 
 let defaultTitle = '暂无设置标题'
 
@@ -306,6 +310,7 @@ const CreateNote = async () => {
     if (responseData.success) {
         loadingBar.finish() // 加载条结束
         message.success(responseData.message) // 显示发送请求成功的通知 
+        goEditNoteView(responseData.data) //跳转至编辑笔记路由
         getNoteList(false, false) // 重新获取笔记列表(新增笔记不需要有显示的延迟效果)
     } else {
         loadingBar.error() // 加载条异常结束 
@@ -313,6 +318,19 @@ const CreateNote = async () => {
         if (responseData.code === "L_008") {
             loginInvalid(true) // 登录失效
         }
+    }
+}
+
+// ===== 跳转 ===== 
+/**
+ * 前往编辑笔记的视图
+ * @param {Number} id 
+ */
+const goEditNoteView = (id) => {
+    if (id) {
+        router.push('/note/edit/' + id) // 跳转路由
+    } else {
+        message.error('前往笔记编辑页失败')
     }
 }
 </script>
@@ -352,7 +370,8 @@ const CreateNote = async () => {
                         <template v-if="!loading && noteList.length > 0">
                             <n-list-item v-for="(n, index) in noteList" :key="n.id" :data-index="index"
                                 @contextmenu="showContextMenu($event, n.id, !!n.top, n.title)"
-                                :class="{ 'contexting': contextMenu.id === n.id && contextMenu.show }">
+                                :class="{ 'contexting': contextMenu.id === n.id && contextMenu.show }"
+                                @click="goEditNoteView(n.id)">
                                 <NoteCard :id="n.id" :title="n.title ? n.title : defaultTitle" :desc="n.body" :top="!!n.top"
                                     :time="n.updateTime">
                                 </NoteCard>
@@ -373,6 +392,11 @@ const CreateNote = async () => {
                 </n-empty>
             </n-scrollbar>
         </n-layout-sider>
+        <!-- 笔记编辑容器 -->
+        <n-layout-content>
+            <!-- 子路由 -->
+            <RouterView />
+        </n-layout-content>
     </n-layout>
     <!-- 删除提醒框 -->
     <DeleteRemindDialog :show="displayDeleteRemind" :title="contextMenu.title" @delete="toDeleteNote"
