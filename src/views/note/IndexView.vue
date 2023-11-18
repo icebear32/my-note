@@ -2,9 +2,9 @@
 import gsap from "gsap"
 import { useRouter } from 'vue-router'
 import { ref, h, computed } from "vue"
-import { useMessage, useLoadingBar, NIcon } from 'naive-ui'
 import NoteCard from "@/components/note/NoteCard.vue"
 import { noteBaseRequest } from "@/request/note_request"
+import { useMessage, useLoadingBar, NIcon } from 'naive-ui'
 import { getUserToken, loginInvalid } from '@/utils/userLoginUtil'
 import DeleteRemindDialog from '@/components/remind/DeleteRemindDialog.vue'
 import { PlusRound, SubtitlesOffOutlined, DriveFileRenameOutlineOutlined, DeleteOutlineRound, ArrowCircleUpRound, ArrowCircleDownRound } from "@vicons/material"
