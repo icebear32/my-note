@@ -1,9 +1,9 @@
 <script setup>
-import { watch } from "vue"
-import { noteBaseRequest } from "@/request/note_request"
+import { watch, ref } from "vue"
 import { useMessage, useLoadingBar } from 'naive-ui'
+import { noteBaseRequest } from "@/request/note_request"
 import { getUserToken, loginInvalid } from '@/utils/userLoginUtil'
-
+import { FiberManualRecordRound, StarBorderRound, MoreHorizRound } from "@vicons/material"
 
 // 消息对象
 const message = useMessage()
@@ -13,6 +13,9 @@ const loadingBar = useLoadingBar()
 const propsData = defineProps({
     id: { type: Number, required: true }
 })
+
+// 编辑的笔记
+const note = ref({})
 
 // 获取编辑的笔记信息
 const getEditNote = async () => {
@@ -35,7 +38,8 @@ const getEditNote = async () => {
     // 得到服务器返回的数据，进行处理
     if (responseData.success) {
         loadingBar.finish() // 加载条结束
-        console.log(responseData.data)
+        // console.log(responseData.data)
+        note.value = responseData.data
     } else {
         loadingBar.error() // 加载条异常结束 
         message.error(responseData.message) // 显示发送请求失败的通知
@@ -58,5 +62,23 @@ getEditNote()
 </script>
 
 <template>
-    <n-button>笔记编辑容器{{ id }}</n-button>
+    <n-card :bordered="false" size="small">
+        <n-space justify="space-between" align="center">
+            <!-- 发布时间 -->
+            <n-space align="center" :wrap-item="false">
+                <n-icon color="#18a058" :component="FiberManualRecordRound"></n-icon>
+                <n-text depth="3">保存并发布于：{{ note.updateTime }}</n-text>
+            </n-space>
+            <!-- 功能按钮：分享、收藏、更多功能按钮 -->
+            <n-space align="center" :wrap-item="false" :size="8">
+                <n-button round dashed>分享</n-button>
+                <n-button quaternary circle>
+                    <n-icon size="20" :component="StarBorderRound"></n-icon>
+                </n-button>
+                <n-button quaternary circle>
+                    <n-icon size="20" :component="MoreHorizRound"></n-icon>
+                </n-button>
+            </n-space>
+        </n-space>
+    </n-card>
 </template>

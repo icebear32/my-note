@@ -342,7 +342,7 @@ const goEditNoteView = (id) => {
         <n-layout-sider bordered show-trigger :width="340" class="note-list" :collapsed-width="0" :collapsed="collapsed">
             <n-scrollbar style="max-height: 100%;">
                 <!-- 标题区域，新增笔记按钮 -->
-                <n-card :bordered="false" style="position: sticky;top: 0;z-index: 1;">
+                <n-card :bordered="false" style="position: sticky;top: 0;z-index: 1;width: calc(100% - 1px);">
                     <template #action>
                         <n-space align="center" justify="space-between">
                             <h3 style="margin: 0;">笔记列表</h3>
@@ -393,7 +393,7 @@ const goEditNoteView = (id) => {
             </n-scrollbar>
         </n-layout-sider>
         <!-- 笔记编辑容器 -->
-        <n-layout-content>
+        <n-layout-content embedded content-style="padding: 20px">
             <!-- 子路由 -->
             <RouterView />
         </n-layout-content>
