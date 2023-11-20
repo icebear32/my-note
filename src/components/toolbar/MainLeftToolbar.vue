@@ -85,6 +85,15 @@ const mainMenus = [
         to: ''
     }
 ]
+
+/**
+ * 是否高亮显示菜单按钮
+ * @param {String} toRouterPath 菜单跳转的路由地址
+ */
+const isHighlightMenu = (toRouterPath) => {
+    if (!toRouterPath) return false
+    return routerPath.value.startsWith(toRouterPath) // 判断路由地址是否以（菜单跳转的路由地址）为开头
+}
 </script>
 
 <template>
@@ -105,9 +114,9 @@ const mainMenus = [
     <n-space vertical :size="16">
         <n-popover v-for="menu in mainMenus" :key="menu.label" placement="right" :show-arrow="false">
             <template #trigger>
-                <n-button style="width: 34px;padding: 0;" :quaternary="routerPath !== menu.to"
-                    :type="routerPath === menu.to ? 'primary' : 'default'"
-                    :tertiary="routerPath === menu.to ? 'primary' : false" @click="router.push(menu.to)">
+                <n-button style="width: 34px;padding: 0;" :quaternary="!isHighlightMenu(menu.to)"
+                    :type="isHighlightMenu(menu.to) ? 'primary' : 'default'"
+                    :tertiary="isHighlightMenu(menu.to)" @click="router.push(menu.to)">
                     <n-icon :size="menu.icon_size" :component="menu.icon"></n-icon>
                 </n-button>
             </template>

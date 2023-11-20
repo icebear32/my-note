@@ -72,9 +72,15 @@ getEditNote()
             <!-- 功能按钮：分享、收藏、更多功能按钮 -->
             <n-space align="center" :wrap-item="false" :size="8">
                 <n-button round dashed>分享</n-button>
-                <n-button quaternary circle>
-                    <n-icon size="20" :component="StarBorderRound"></n-icon>
-                </n-button>
+                <!-- 收藏按钮 -->
+                <n-popover>
+                    <template #trigger>
+                        <n-button quaternary circle>
+                            <n-icon size="20" :component="StarBorderRound"></n-icon>
+                        </n-button>
+                    </template>
+                    收藏
+                </n-popover>
                 <n-button quaternary circle>
                     <n-icon size="20" :component="MoreHorizRound"></n-icon>
                 </n-button>
