@@ -13,6 +13,7 @@
     "@ckeditor/ckeditor5-editor-decoupled": "^39.0.1",
     "@ckeditor/ckeditor5-essentials": "^39.0.1",
     "@ckeditor/ckeditor5-font": "^39.0.1",
+    "@ckeditor/ckeditor5-horizontal-line": "^39.0.1",
     "@ckeditor/ckeditor5-paragraph": "^39.0.1",
     "@ckeditor/ckeditor5-theme-lark": "^39.0.1",
     "@ckeditor/ckeditor5-vue": "^5.1.0",

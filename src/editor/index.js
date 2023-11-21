@@ -2,6 +2,7 @@ import { Alignment } from '@ckeditor/ckeditor5-alignment' // 文本对齐插件
 import { Paragraph } from '@ckeditor/ckeditor5-paragraph' // 段落插件
 import { Essentials } from '@ckeditor/ckeditor5-essentials' // 基本功能插件
 import { BlockQuote } from '@ckeditor/ckeditor5-block-quote' // 块引用插件
+import {HorizontalLine} from '@ckeditor/ckeditor5-horizontal-line' // 水平线插件
 import { DecoupledEditor } from '@ckeditor/ckeditor5-editor-decoupled' // 引入编辑器
 import { FontSize, FontColor, FontBackgroundColor } from '@ckeditor/ckeditor5-font' // 字体插件
 import {
@@ -36,6 +37,7 @@ export const getEditorConfigs = () => ({
         FontColor, // 字体颜色
         FontBackgroundColor, // 字体背景色
         Alignment, // 文本对齐插件
+        HorizontalLine, // 水平线插件
     ],
     fontSize: {
         supporAllValues: true,
@@ -230,5 +232,6 @@ export const getEditorConfigs = () => ({
         'FontColor', // 字体颜色
         'FontBackgroundColor', // 字体背景色
         'Alignment', // 文本对齐
+        'HorizontalLine' // 水平线
     ]
 })
