@@ -12,6 +12,7 @@ export const getEditorConfigs = () => ({
         Paragraph, // 段落插件
         Essentials, // 基本功能插件（插件支持剪贴板、输入、全选、ShiftEnter、键入和撤消支持）
     ],
+    // 工具栏
     toolbar: [
         'undo', // 撤消
         'redo', // 重做
