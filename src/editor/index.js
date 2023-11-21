@@ -1,8 +1,9 @@
+import { Heading, Title } from '@ckeditor/ckeditor5-heading' // 标题样式插件，文档标题插件
 import { Alignment } from '@ckeditor/ckeditor5-alignment' // 文本对齐插件
 import { Paragraph } from '@ckeditor/ckeditor5-paragraph' // 段落插件
 import { Essentials } from '@ckeditor/ckeditor5-essentials' // 基本功能插件
 import { BlockQuote } from '@ckeditor/ckeditor5-block-quote' // 块引用插件
-import {HorizontalLine} from '@ckeditor/ckeditor5-horizontal-line' // 水平线插件
+import { HorizontalLine } from '@ckeditor/ckeditor5-horizontal-line' // 水平线插件
 import { DecoupledEditor } from '@ckeditor/ckeditor5-editor-decoupled' // 引入编辑器
 import { FontSize, FontColor, FontBackgroundColor } from '@ckeditor/ckeditor5-font' // 字体插件
 import {
@@ -38,6 +39,8 @@ export const getEditorConfigs = () => ({
         FontBackgroundColor, // 字体背景色
         Alignment, // 文本对齐插件
         HorizontalLine, // 水平线插件
+        Heading, // 标题样式插件
+        Title, // 文档标题插件
     ],
     fontSize: {
         supporAllValues: true,
@@ -214,6 +217,37 @@ export const getEditorConfigs = () => ({
             'center', // 水平居中对齐
         ]
     },
+    heading: {
+        options: [
+            { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+            { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+            { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+            { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' },
+            { model: 'heading4', view: 'h4', title: 'Heading 4', class: 'ck-heading_heading4' },
+            { model: 'heading5', view: 'h5', title: 'Heading 5', class: 'ck-heading_heading5' },
+            { model: 'heading6', view: 'h6', title: 'Heading 6', class: 'ck-heading_heading6' },
+            // 自定义
+            {
+                model: 'customParagraph',
+                title: '段落 - 蓝色 - 斜体', // 下拉框的选项显示文本
+                class: 'custom_p_blue_italic', // 下拉框的选项显示文本样式
+                converterPriority: 'high', // 转换级别高
+                // 渲染后的元素 
+                view: {
+                    name: 'p', // 段落元素
+                    styles: {
+                        'font-size': '9px',
+                        'color': '#3058cf',
+                        'font-style': 'italic'
+                    }
+                }
+            }
+        ]
+    },
+    title: {
+        placeholder: '请输入文档标题',
+    },
+    placeholder: '请在此处输入文章内容',
     // 工具栏
     toolbar: [
         'undo', // 撤消
@@ -232,6 +266,7 @@ export const getEditorConfigs = () => ({
         'FontColor', // 字体颜色
         'FontBackgroundColor', // 字体背景色
         'Alignment', // 文本对齐
-        'HorizontalLine' // 水平线
+        'HorizontalLine', // 水平线
+        'Heading', // 标题
     ]
 })
