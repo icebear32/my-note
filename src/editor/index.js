@@ -1,8 +1,9 @@
-import { FontSize, FontColor, FontBackgroundColor } from '@ckeditor/ckeditor5-font' // 字体插件
+import { Alignment } from '@ckeditor/ckeditor5-alignment' // 文本对齐插件
 import { Paragraph } from '@ckeditor/ckeditor5-paragraph' // 段落插件
 import { Essentials } from '@ckeditor/ckeditor5-essentials' // 基本功能插件
 import { BlockQuote } from '@ckeditor/ckeditor5-block-quote' // 块引用插件
 import { DecoupledEditor } from '@ckeditor/ckeditor5-editor-decoupled' // 引入编辑器
+import { FontSize, FontColor, FontBackgroundColor } from '@ckeditor/ckeditor5-font' // 字体插件
 import {
     Bold, // 加粗
     Italic, // 斜体
@@ -34,6 +35,7 @@ export const getEditorConfigs = () => ({
         FontSize, // 字体大小
         FontColor, // 字体颜色
         FontBackgroundColor, // 字体背景色
+        Alignment, // 文本对齐插件
     ],
     fontSize: {
         supporAllValues: true,
@@ -203,6 +205,13 @@ export const getEditorConfigs = () => ({
             { color: '#5C0036', label: '玫红 5' }
         ]
     },
+    alignment: {
+        options: [
+            'left', // 左对齐
+            'right', // 右对齐
+            'center', // 水平居中对齐
+        ]
+    },
     // 工具栏
     toolbar: [
         'undo', // 撤消
@@ -220,5 +229,6 @@ export const getEditorConfigs = () => ({
         'FontSize', // 字体大小
         'FontColor', // 字体颜色
         'FontBackgroundColor', // 字体背景色
+        'Alignment', // 文本对齐
     ]
 })
