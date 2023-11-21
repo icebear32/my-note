@@ -1,3 +1,4 @@
+import {Link} from '@ckeditor/ckeditor5-link' // 链接插件
 import { CodeBlock } from '@ckeditor/ckeditor5-code-block' // 代码块插件
 import { Heading, Title } from '@ckeditor/ckeditor5-heading' // 标题样式插件，文档标题插件
 import { Alignment } from '@ckeditor/ckeditor5-alignment' // 文本对齐插件
@@ -75,6 +76,7 @@ export const getEditorConfigs = () => ({
         TableCellProperties, // 单元格属性插件
         TableColumnResize, // 调整表列宽度插件
         TableCaption, // 表标题插件
+        Link, // 链接插件
     ],
     fontSize: {
         supporAllValues: true,
@@ -317,5 +319,6 @@ export const getEditorConfigs = () => ({
         'Codeblock', // 代码块
         'FindAndReplace', // 查找替换
         'InsertTable', // 插入表格
+        'Link', // 链接
     ]
 })
