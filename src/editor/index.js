@@ -1,5 +1,6 @@
 import { Paragraph } from '@ckeditor/ckeditor5-paragraph' // 段落插件
 import { Essentials } from '@ckeditor/ckeditor5-essentials' // 基本功能插件
+import {BlockQuote} from  '@ckeditor/ckeditor5-block-quote' // 块引用插件
 import { DecoupledEditor } from '@ckeditor/ckeditor5-editor-decoupled' // 引入编辑器
 import {
     Bold, // 加粗
@@ -27,6 +28,7 @@ export const getEditorConfigs = () => ({
         Superscript, // 上标
         Subscript, // 下标
         Code, // 行内代码
+        BlockQuote, // 块引用插件
     ],
     // 工具栏
     toolbar: [
@@ -39,6 +41,7 @@ export const getEditorConfigs = () => ({
         'underline', // 下划线
         'superscript', // 上标
         'subscript', // 下标
-        'code' // 行内代码
+        'code', // 行内代码
+        'blockQuote', // 块引用
     ]
 })
