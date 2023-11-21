@@ -11,6 +11,10 @@ import {
     ListProperties, // 列表插件
 } from '@ckeditor/ckeditor5-list'
 import {
+    Indent, // 缩进插件（列表）
+    IndentBlock, // 缩进插件（块：段落，标题）
+} from '@ckeditor/ckeditor5-indent'
+import {
     Bold, // 加粗
     Italic, // 斜体
     Strikethrough, // 删除线
@@ -47,6 +51,12 @@ export const getEditorConfigs = () => ({
         Title, // 文档标题插件
         ListProperties, // 列表插件（有序和无序）
         TodoList, // 待办事项列表插件
+        Paragraph, // 段落插件
+        Essentials, // 基础插件
+        ListProperties, // 列表插件
+        TodoList, // 标题插件
+        Indent, // 缩进插件（列表）
+        IndentBlock, // 缩进插件（块：段落，标题）
     ],
     fontSize: {
         supporAllValues: true,
@@ -284,5 +294,7 @@ export const getEditorConfigs = () => ({
         'BulletedList', // 无序列表
         'NumberedList', // 有序列表
         'Todolist', // 待办事项列表
+        'outdent', // 减少缩进
+        'indent', // 增加缩进
     ]
 })
