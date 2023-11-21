@@ -7,6 +7,10 @@ import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 
+import { createRequire } from 'node:module'
+const require = createRequire(import.meta.url)
+import ckeditor5 from '@ckeditor/vite-plugin-ckeditor5' // 引入 ckeditor5 vite 插件
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -26,7 +30,10 @@ export default defineConfig({
     }),
     Components({
       resolvers: [NaiveUiResolver()]
-    })
+    }),
+    ckeditor5({
+      theme: require.resolve('@ckeditor/ckeditor5-theme-lark')
+    }) // ckeditor5 插件，记得安装好主题
   ],
   resolve: {
     alias: {

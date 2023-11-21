@@ -2,9 +2,9 @@
 import { watch, ref } from "vue"
 import CKEditor from '@ckeditor/ckeditor5-vue'
 import { useMessage, useLoadingBar } from 'naive-ui'
+import { editorType, getEditorConfigs } from "@/editor"
 import { noteBaseRequest } from "@/request/note_request"
 import { getUserToken, loginInvalid } from '@/utils/userLoginUtil'
-import DecoupledEditor from '@ckeditor/ckeditor5-build-decoupled-document'
 import { FiberManualRecordRound, StarBorderRound, MoreHorizRound } from "@vicons/material"
 
 // 消息对象
@@ -106,7 +106,12 @@ const readyEditor = (editor) => {
         </n-card>
         <n-card :bordered="false" size="small">
             <!-- 富文本编辑器 -->
-            <ckeditor5 :editor="DecoupledEditor" @ready="readyEditor" v-model="note.content" />
+            <ckeditor5 
+                :editor="editorType" 
+                @ready="readyEditor" 
+                v-model="note.content"
+                :config="getEditorConfigs()"
+             />
         </n-card>
     </n-space>
 </template>
