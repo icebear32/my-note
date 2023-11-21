@@ -36,6 +36,15 @@ import {
     TableColumnResize, // 调整表列宽度插件
     TableCaption // 表标题插件
 } from '@ckeditor/ckeditor5-table'
+import {
+    Image, // 图像插件
+    ImageToolbar, // 图像工具栏插件
+    ImageResize, // 调整图像尺寸插件
+    ImageStyle, // 图像样式插件
+    ImageCaption, // 图像标题插件
+    ImageInsert, // 插入图像插件
+} from '@ckeditor/ckeditor5-image'
+import {Base64UploadAdapter} from '@ckeditor/ckeditor5-upload' // Base64 图像上传适配器插件
 
 // 编辑器的类型
 export const editorType = DecoupledEditor
@@ -81,6 +90,13 @@ export const getEditorConfigs = () => ({
         Link, // 链接插件
         Autoformat, // 自动格式转换插件
         RemoveFormat, // 删除格式插件
+        Image, // 图像插件
+        ImageToolbar, // 图像工具栏插件
+        ImageResize, // 调整图像尺寸插件
+        ImageStyle, // 图像样式插件
+        ImageCaption, // 图像标题插件
+        ImageInsert, // 插入图像插件
+        Base64UploadAdapter, // Base64 图像上传适配器插件
     ],
     fontSize: {
         supporAllValues: true,
@@ -295,8 +311,17 @@ export const getEditorConfigs = () => ({
             reversed: true, // 是否反转有序列表序号
         }
     },
+    image: {
+        toolbar: [
+            'toggleImageCaption', // 显示或隐藏图像标题
+            'imageStyle:alignBlockLeft', // 块图像左对齐
+            'imageStyle:alignBlockRight', // 块图像右对齐
+            'imageStyle:alignCenter', // 图像居中对齐
+        ],
+    },
     // 工具栏
     toolbar: [
+        'InsertImage', // 插入图像
         'undo', // 撤消
         'redo', // 重做
         'selectAll', // 全选
