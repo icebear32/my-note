@@ -4,7 +4,7 @@ import { Alignment } from '@ckeditor/ckeditor5-alignment' // 文本对齐插件
 import { Paragraph } from '@ckeditor/ckeditor5-paragraph' // 段落插件
 import { Essentials } from '@ckeditor/ckeditor5-essentials' // 基本功能插件
 import { BlockQuote } from '@ckeditor/ckeditor5-block-quote' // 块引用插件
-import {FindAndReplace} from '@ckeditor/ckeditor5-find-and-replace' // 查找替换插件
+import { FindAndReplace } from '@ckeditor/ckeditor5-find-and-replace' // 查找替换插件
 import { HorizontalLine } from '@ckeditor/ckeditor5-horizontal-line' // 水平线插件
 import { DecoupledEditor } from '@ckeditor/ckeditor5-editor-decoupled' // 引入编辑器
 import { FontSize, FontColor, FontBackgroundColor } from '@ckeditor/ckeditor5-font' // 字体插件
@@ -25,6 +25,14 @@ import {
     Superscript, // 上标
     Code // 行内代码
 } from '@ckeditor/ckeditor5-basic-styles'
+import {
+    Table, // 表格插件
+    TableToolbar, // 表格工具栏插件
+    TableProperties, // 表属性插件
+    TableCellProperties, // 单元格属性插件
+    TableColumnResize, // 调整表列宽度插件
+    TableCaption // 表标题插件
+} from '@ckeditor/ckeditor5-table'
 
 // 编辑器的类型
 export const editorType = DecoupledEditor
@@ -61,6 +69,12 @@ export const getEditorConfigs = () => ({
         IndentBlock, // 缩进插件（块：段落，标题）
         CodeBlock, // 代码块插件
         FindAndReplace, // 查找替换插件
+        Table, // 表格插件
+        TableToolbar, // 表工具栏
+        TableProperties, // 表属性插件
+        TableCellProperties, // 单元格属性插件
+        TableColumnResize, // 调整表列宽度插件
+        TableCaption, // 表标题插件
     ],
     fontSize: {
         supporAllValues: true,
@@ -302,5 +316,6 @@ export const getEditorConfigs = () => ({
         'Indent', // 增加缩进
         'Codeblock', // 代码块
         'FindAndReplace', // 查找替换
+        'InsertTable', // 插入表格
     ]
 })
