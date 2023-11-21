@@ -7,6 +7,10 @@ import { HorizontalLine } from '@ckeditor/ckeditor5-horizontal-line' // 水平�
 import { DecoupledEditor } from '@ckeditor/ckeditor5-editor-decoupled' // 引入编辑器
 import { FontSize, FontColor, FontBackgroundColor } from '@ckeditor/ckeditor5-font' // 字体插件
 import {
+    TodoList, // 待办事项列表插件
+    ListProperties, // 列表插件
+} from '@ckeditor/ckeditor5-list'
+import {
     Bold, // 加粗
     Italic, // 斜体
     Strikethrough, // 删除线
@@ -41,6 +45,8 @@ export const getEditorConfigs = () => ({
         HorizontalLine, // 水平线插件
         Heading, // 标题样式插件
         Title, // 文档标题插件
+        ListProperties, // 列表插件（有序和无序）
+        TodoList, // 待办事项列表插件
     ],
     fontSize: {
         supporAllValues: true,
@@ -248,6 +254,13 @@ export const getEditorConfigs = () => ({
         placeholder: '请输入文档标题',
     },
     placeholder: '请在此处输入文章内容',
+    list: {
+        properties: {
+            styles: true, // 是否显示列表样式，默认为 true，false 时无法创建有序和无序列表
+            startIndex: true, // 列表序号开始值
+            reversed: true, // 是否反转有序列表序号
+        }
+    },
     // 工具栏
     toolbar: [
         'undo', // 撤消
@@ -268,5 +281,8 @@ export const getEditorConfigs = () => ({
         'Alignment', // 文本对齐
         'HorizontalLine', // 水平线
         'Heading', // 标题
+        'BulletedList', // 无序列表
+        'NumberedList', // 有序列表
+        'Todolist', // 待办事项列表
     ]
 })
