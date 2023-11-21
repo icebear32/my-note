@@ -13,6 +13,7 @@
     "@ckeditor/ckeditor5-code-block": "^39.0.1",
     "@ckeditor/ckeditor5-editor-decoupled": "^39.0.1",
     "@ckeditor/ckeditor5-essentials": "^39.0.1",
+    "@ckeditor/ckeditor5-find-and-replace": "^39.0.1",
     "@ckeditor/ckeditor5-font": "^39.0.1",
     "@ckeditor/ckeditor5-heading": "^39.0.1",
     "@ckeditor/ckeditor5-horizontal-line": "^39.0.1",

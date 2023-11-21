@@ -4,6 +4,7 @@ import { Alignment } from '@ckeditor/ckeditor5-alignment' // 文本对齐插件
 import { Paragraph } from '@ckeditor/ckeditor5-paragraph' // 段落插件
 import { Essentials } from '@ckeditor/ckeditor5-essentials' // 基本功能插件
 import { BlockQuote } from '@ckeditor/ckeditor5-block-quote' // 块引用插件
+import {FindAndReplace} from '@ckeditor/ckeditor5-find-and-replace' // 查找替换插件
 import { HorizontalLine } from '@ckeditor/ckeditor5-horizontal-line' // 水平线插件
 import { DecoupledEditor } from '@ckeditor/ckeditor5-editor-decoupled' // 引入编辑器
 import { FontSize, FontColor, FontBackgroundColor } from '@ckeditor/ckeditor5-font' // 字体插件
@@ -59,6 +60,7 @@ export const getEditorConfigs = () => ({
         Indent, // 缩进插件（列表）
         IndentBlock, // 缩进插件（块：段落，标题）
         CodeBlock, // 代码块插件
+        FindAndReplace, // 查找替换插件
     ],
     fontSize: {
         supporAllValues: true,
@@ -299,5 +301,6 @@ export const getEditorConfigs = () => ({
         'Outdent', // 减少缩进
         'Indent', // 增加缩进
         'Codeblock', // 代码块
+        'FindAndReplace', // 查找替换
     ]
 })
