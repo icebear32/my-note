@@ -1,8 +1,9 @@
-import {Link} from '@ckeditor/ckeditor5-link' // 链接插件
+import { Link } from '@ckeditor/ckeditor5-link' // 链接插件
 import { CodeBlock } from '@ckeditor/ckeditor5-code-block' // 代码块插件
 import { Heading, Title } from '@ckeditor/ckeditor5-heading' // 标题样式插件，文档标题插件
 import { Alignment } from '@ckeditor/ckeditor5-alignment' // 文本对齐插件
 import { Paragraph } from '@ckeditor/ckeditor5-paragraph' // 段落插件
+import { Autoformat } from '@ckeditor/ckeditor5-autoformat' // 自动格式转换插件
 import { Essentials } from '@ckeditor/ckeditor5-essentials' // 基本功能插件
 import { BlockQuote } from '@ckeditor/ckeditor5-block-quote' // 块引用插件
 import { FindAndReplace } from '@ckeditor/ckeditor5-find-and-replace' // 查找替换插件
@@ -77,6 +78,7 @@ export const getEditorConfigs = () => ({
         TableColumnResize, // 调整表列宽度插件
         TableCaption, // 表标题插件
         Link, // 链接插件
+        Autoformat, // 自动格式转换插件
     ],
     fontSize: {
         supporAllValues: true,
