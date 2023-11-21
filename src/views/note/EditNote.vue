@@ -1,8 +1,10 @@
 <script setup>
 import { watch, ref } from "vue"
+import CKEditor from '@ckeditor/ckeditor5-vue'
 import { useMessage, useLoadingBar } from 'naive-ui'
 import { noteBaseRequest } from "@/request/note_request"
 import { getUserToken, loginInvalid } from '@/utils/userLoginUtil'
+import DecoupledEditor from '@ckeditor/ckeditor5-build-decoupled-document'
 import { FiberManualRecordRound, StarBorderRound, MoreHorizRound } from "@vicons/material"
 
 // 消息对象
@@ -13,6 +15,8 @@ const loadingBar = useLoadingBar()
 const propsData = defineProps({
     id: { type: Number, required: true }
 })
+
+const ckeditor5 = CKEditor.component // 注册 ckleditor5 组件
 
 // 编辑的笔记
 const note = ref({})
@@ -59,32 +63,50 @@ watch(
 
 // 获取编辑的笔记信息
 getEditNote()
+
+/**
+ * 富文本编辑器初始化完毕
+ * @param {*} editor 编辑器的对象
+ */
+const readyEditor = (editor) => {
+    // 在编辑器区域插入工具栏
+    editor.ui.getEditableElement().parentElement.insertBefore(
+        editor.ui.view.toolbar.element,
+        editor.ui.getEditableElement()
+    )
+}
 </script>
 
 <template>
-    <n-card :bordered="false" size="small">
-        <n-space justify="space-between" align="center">
-            <!-- 发布时间 -->
-            <n-space align="center" :wrap-item="false">
-                <n-icon color="#18a058" :component="FiberManualRecordRound"></n-icon>
-                <n-text depth="3">保存并发布于：{{ note.updateTime }}</n-text>
+    <n-space vertical>
+        <n-card :bordered="false" size="small">
+            <n-space justify="space-between" align="center">
+                <!-- 发布时间 -->
+                <n-space align="center" :wrap-item="false">
+                    <n-icon color="#18a058" :component="FiberManualRecordRound"></n-icon>
+                    <n-text depth="3">保存并发布于：{{ note.updateTime }}</n-text>
+                </n-space>
+                <!-- 功能按钮：分享、收藏、更多功能按钮 -->
+                <n-space align="center" :wrap-item="false" :size="8">
+                    <n-button round dashed>分享</n-button>
+                    <!-- 收藏按钮 -->
+                    <n-popover>
+                        <template #trigger>
+                            <n-button quaternary circle>
+                                <n-icon size="20" :component="StarBorderRound"></n-icon>
+                            </n-button>
+                        </template>
+                        收藏
+                    </n-popover>
+                    <n-button quaternary circle>
+                        <n-icon size="20" :component="MoreHorizRound"></n-icon>
+                    </n-button>
+                </n-space>
             </n-space>
-            <!-- 功能按钮：分享、收藏、更多功能按钮 -->
-            <n-space align="center" :wrap-item="false" :size="8">
-                <n-button round dashed>分享</n-button>
-                <!-- 收藏按钮 -->
-                <n-popover>
-                    <template #trigger>
-                        <n-button quaternary circle>
-                            <n-icon size="20" :component="StarBorderRound"></n-icon>
-                        </n-button>
-                    </template>
-                    收藏
-                </n-popover>
-                <n-button quaternary circle>
-                    <n-icon size="20" :component="MoreHorizRound"></n-icon>
-                </n-button>
-            </n-space>
-        </n-space>
-    </n-card>
+        </n-card>
+        <n-card :bordered="false" size="small">
+            <!-- 富文本编辑器 -->
+            <ckeditor5 :editor="DecoupledEditor" @ready="readyEditor" v-model="note.content" />
+        </n-card>
+    </n-space>
 </template>
