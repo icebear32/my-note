@@ -1,3 +1,4 @@
+import { CodeBlock } from '@ckeditor/ckeditor5-code-block' // 代码块插件
 import { Heading, Title } from '@ckeditor/ckeditor5-heading' // 标题样式插件，文档标题插件
 import { Alignment } from '@ckeditor/ckeditor5-alignment' // 文本对齐插件
 import { Paragraph } from '@ckeditor/ckeditor5-paragraph' // 段落插件
@@ -57,6 +58,7 @@ export const getEditorConfigs = () => ({
         TodoList, // 标题插件
         Indent, // 缩进插件（列表）
         IndentBlock, // 缩进插件（块：段落，标题）
+        CodeBlock, // 代码块插件
     ],
     fontSize: {
         supporAllValues: true,
@@ -294,7 +296,8 @@ export const getEditorConfigs = () => ({
         'BulletedList', // 无序列表
         'NumberedList', // 有序列表
         'Todolist', // 待办事项列表
-        'outdent', // 减少缩进
-        'indent', // 增加缩进
+        'Outdent', // 减少缩进
+        'Indent', // 增加缩进
+        'Codeblock', // 代码块
     ]
 })
