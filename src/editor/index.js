@@ -6,8 +6,9 @@ import { Paragraph } from '@ckeditor/ckeditor5-paragraph' // 段落插件
 import { Autoformat } from '@ckeditor/ckeditor5-autoformat' // 自动格式转换插件
 import { Essentials } from '@ckeditor/ckeditor5-essentials' // 基本功能插件
 import { BlockQuote } from '@ckeditor/ckeditor5-block-quote' // 块引用插件
-import { FindAndReplace } from '@ckeditor/ckeditor5-find-and-replace' // 查找替换插件
+import { RemoveFormat } from '@ckeditor/ckeditor5-remove-format'  // 删除格式插件
 import { HorizontalLine } from '@ckeditor/ckeditor5-horizontal-line' // 水平线插件
+import { FindAndReplace } from '@ckeditor/ckeditor5-find-and-replace' // 查找替换插件
 import { DecoupledEditor } from '@ckeditor/ckeditor5-editor-decoupled' // 引入编辑器
 import { FontSize, FontColor, FontBackgroundColor } from '@ckeditor/ckeditor5-font' // 字体插件
 import {
@@ -79,6 +80,7 @@ export const getEditorConfigs = () => ({
         TableCaption, // 表标题插件
         Link, // 链接插件
         Autoformat, // 自动格式转换插件
+        RemoveFormat, // 删除格式插件
     ],
     fontSize: {
         supporAllValues: true,
@@ -322,5 +324,6 @@ export const getEditorConfigs = () => ({
         'FindAndReplace', // 查找替换
         'InsertTable', // 插入表格
         'Link', // 链接
+        'RemoveFormat', // 删除格式
     ]
 })
