@@ -6,6 +6,7 @@ import { editorType, getEditorConfigs } from "@/editor"
 import { noteBaseRequest } from "@/request/note_request"
 import { getUserToken, loginInvalid } from '@/utils/userLoginUtil'
 import { FiberManualRecordRound, StarBorderRound, MoreHorizRound } from "@vicons/material"
+import { onMounted } from "vue"
 
 // 消息对象
 const message = useMessage()
@@ -69,16 +70,67 @@ watch(
 // 获取编辑的笔记信息
 getEditNote()
 
+let editor = null // 编辑器对象
+
 /**
  * 富文本编辑器初始化完毕
- * @param {*} editor 编辑器的对象
+ * @param {*} editorObj 编辑器的对象
  */
-const readyEditor = (editor) => {
+const readyEditor = (editorObj) => {
+    editor = editorObj // 编辑器对象
     // 在编辑器区域插入工具栏
-    editor.ui.getEditableElement().parentElement.insertBefore(
-        editor.ui.view.toolbar.element,
-        editor.ui.getEditableElement()
+    editorObj.ui.getEditableElement().parentElement.insertBefore(
+        editorObj.ui.view.toolbar.element,
+        editorObj.ui.getEditableElement()
     )
+}
+
+onMounted(() => {
+    window.addEventListener('keydown', (e) => {
+        if (e.keyCode === 83 && e.ctrlKey) {
+            // console.log(e)
+            e.preventDefault()
+            e.returnValue = false
+            saveNote() // 保存笔记
+        }
+    })
+})
+
+const saveNote = async () => {
+    const noteId = propsData.id // 编号
+    const title = editor.plugins.get('Title').getTitle() // 文档标题
+    const body = editor.plugins.get('Title').getBody() // 文档内容
+    const content = note.value.content // 文档完整内容
+
+    // 判断用户的登录状态
+    const userToken = await getUserToken()
+    loadingBar.start() // 加载条开始
+
+    // 发送保存的笔记请求
+    const { data: responseData } = await noteBaseRequest.post(
+        "/note/save",
+        { noteId, title, body, content },
+        {
+            params: { noteId: propsData.id },
+            headers: { userToken }
+        }
+    ).catch(() => {
+        // 发送请求失败（404，500，400，...）
+        loadingBar.error() // 加载条异常
+        throw message.error("保存笔记的请求失败") // 请求失败的通知
+    })
+    // 得到服务器返回的数据，进行处理
+    if (responseData.success) {
+        loadingBar.finish() // 加载条结束
+        message.success(responseData.message) // 请求发送成功的通知
+        note.updateTime = responseData.data
+    } else {
+        loadingBar.error() // 加载条异常结束 
+        message.error(responseData.message) // 显示发送请求失败的通知
+        if (responseData.code === "L_008") {
+            loginInvalid(true) // 登录失效
+        }
+    }
 }
 </script>
 
@@ -123,12 +175,7 @@ const readyEditor = (editor) => {
         <!-- 编辑器 -->
         <n-card :bordered="false" size="small">
             <!-- 富文本编辑器 -->
-            <ckeditor5 
-                :editor="editorType" 
-                @ready="readyEditor" 
-                v-model="note.content"
-                :config="getEditorConfigs()"
-             />
+            <ckeditor5 :editor="editorType" @ready="readyEditor" v-model="note.content" :config="getEditorConfigs()" />
         </n-card>
     </n-space>
 </template>
