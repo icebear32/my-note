@@ -18,11 +18,15 @@ const propsData = defineProps({
 
 const ckeditor5 = CKEditor.component // 注册 ckleditor5 组件
 
+const loading = ref(true) // 是否处于加载中
+
 // 编辑的笔记
 const note = ref({})
 
 // 获取编辑的笔记信息
 const getEditNote = async () => {
+    loading.value = true // 处于加载中
+
     // 判断用户的登录状态
     const userToken = await getUserToken()
     loadingBar.start() // 加载条开始
@@ -44,6 +48,7 @@ const getEditNote = async () => {
         loadingBar.finish() // 加载条结束
         // console.log(responseData.data)
         note.value = responseData.data
+        loading.value = false // 加载已完毕
     } else {
         loadingBar.error() // 加载条异常结束 
         message.error(responseData.message) // 显示发送请求失败的通知
@@ -78,7 +83,18 @@ const readyEditor = (editor) => {
 </script>
 
 <template>
-    <n-space vertical>
+    <!-- 骨架屏 -->
+    <n-space vertical :wrap-item="false" v-if="loading">
+        <n-skeleton :height="36" width="100%"></n-skeleton>
+        <n-skeleton text width="30%"></n-skeleton>
+        <n-skeleton text width="60%"></n-skeleton>
+        <n-skeleton text width="40%"></n-skeleton>
+        <n-skeleton text width="80%"></n-skeleton>
+        <n-skeleton text width="40%"></n-skeleton>
+        <n-skeleton text width="66%"></n-skeleton>
+    </n-space>
+    <n-space vertical v-else>
+        <!-- 发布时间、分享、收藏、更多操作 -->
         <n-card :bordered="false" size="small">
             <n-space justify="space-between" align="center">
                 <!-- 发布时间 -->
@@ -104,6 +120,7 @@ const readyEditor = (editor) => {
                 </n-space>
             </n-space>
         </n-card>
+        <!-- 编辑器 -->
         <n-card :bordered="false" size="small">
             <!-- 富文本编辑器 -->
             <ckeditor5 
