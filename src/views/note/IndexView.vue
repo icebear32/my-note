@@ -346,7 +346,7 @@ const goEditNoteView = (id) => {
     <n-layout has-sider>
         <!-- 笔记列表容器（可收缩的） -->
         <n-layout-sider bordered show-trigger :width="340" class="note-list" :collapsed-width="0" :collapsed="collapsed">
-            <n-scrollbar style="max-height: 100%;">
+            <n-scrollbar style="max-height: 100%;" @scroll="contextMenu.show = false">
                 <!-- 标题区域，新增笔记按钮 -->
                 <n-card :bordered="false" style="position: sticky;top: 0;z-index: 1;width: calc(100% - 1px);">
                     <template #action>
