@@ -44,7 +44,8 @@ import {
     ImageCaption, // 图像标题插件
     ImageInsert, // 插入图像插件
 } from '@ckeditor/ckeditor5-image'
-import {Base64UploadAdapter} from '@ckeditor/ckeditor5-upload' // Base64 图像上传适配器插件
+// import {Base64UploadAdapter} from '@ckeditor/ckeditor5-upload' // Base64 图像上传适配器插件
+import { SimpleUploadAdapter } from '@ckeditor/ckeditor5-upload'  // 简单图像上传适配器插件
 
 // 编辑器的类型
 export const editorType = DecoupledEditor
@@ -96,7 +97,8 @@ export const getEditorConfigs = () => ({
         ImageStyle, // 图像样式插件
         ImageCaption, // 图像标题插件
         ImageInsert, // 插入图像插件
-        Base64UploadAdapter, // Base64 图像上传适配器插件
+        // Base64UploadAdapter, // Base64 图像上传适配器插件
+        SimpleUploadAdapter, // 简单图像上传适配器插件
     ],
     fontSize: {
         supporAllValues: true,
@@ -318,6 +320,9 @@ export const getEditorConfigs = () => ({
             'imageStyle:alignBlockRight', // 块图像右对齐
             'imageStyle:alignCenter', // 图像居中对齐
         ],
+    },
+    simpleUpload: {
+        uploadUrl: '/note-serve/ckeditor/upload/pic', // 上传图像服务器地址（可能需要解决跨域问题）
     },
     // 工具栏
     toolbar: [
