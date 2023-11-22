@@ -1,7 +1,7 @@
 <script setup>
 import gsap from "gsap"
 import { useRouter } from 'vue-router'
-import { ref, h, computed } from "vue"
+import { ref, h, computed, inject } from "vue"
 import NoteCard from "@/components/note/NoteCard.vue"
 import { noteBaseRequest } from "@/request/note_request"
 import { useMessage, useLoadingBar, NIcon } from 'naive-ui'
@@ -16,6 +16,12 @@ const loadingBar = useLoadingBar()
 
 // 路由对象
 const router = useRouter()
+const routerPath = inject('routerPath') // 路由地址
+const editingNoteId = computed(() => {
+    const index = routerPath.value.indexOf('/note/edit/')
+    if (index === -1) return null
+    return parseInt(routerPath.value.substring('/note/edit/'.length))
+})
 
 // 是否处于加载状态
 const loading = ref(true)
@@ -370,7 +376,7 @@ const goEditNoteView = (id) => {
                         <template v-if="!loading && noteList.length > 0">
                             <n-list-item v-for="(n, index) in noteList" :key="n.id" :data-index="index"
                                 @contextmenu="showContextMenu($event, n.id, !!n.top, n.title)"
-                                :class="{ 'contexting': contextMenu.id === n.id && contextMenu.show }"
+                                :class="{ 'contexting': contextMenu.id === n.id && contextMenu.show, 'editing': editingNoteId === n.id }"
                                 @click="goEditNoteView(n.id)">
                                 <NoteCard :id="n.id" :title="n.title ? n.title : defaultTitle" :desc="n.body" :top="!!n.top"
                                     :time="n.updateTime">
@@ -427,6 +433,10 @@ const goEditNoteView = (id) => {
 }
 
 .n-list .n-list-item.contexting {
+    box-shadow: 0 0 5px #a2a2a2;
+}
+
+.n-list .n-list-item.editing {
     box-shadow: 0 0 5px #18A058;
 }
 </style>

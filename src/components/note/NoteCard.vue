@@ -11,7 +11,7 @@ defineProps({
 </script>
 
 <template>
-    <n-thing>
+    <n-thing class="note-card">
         <template #header>
             <n-ellipsis line-clamp="1">{{ title }}</n-ellipsis>
         </template>
@@ -29,3 +29,9 @@ defineProps({
         </template>
     </n-thing>
 </template>
+
+<style>
+.n-thing.note-card {
+    word-break: break-all;
+}
+</style>

@@ -1,23 +1,13 @@
 <script setup>
 import bus from 'vue3-eventbus'
-import { h, watch, ref } from "vue"
+import { h, inject } from "vue"
 import { useRouter } from "vue-router"
 import { NIcon } from "naive-ui"
 import { AccessTimeRound, AddBoxRound, DeleteOutlineRound, EventNoteRound, SearchRound, ShoppingBagOutlined, StarBorderRound, StickyNote2Outlined } from "@vicons/material"
 
 // 路由对象
 const router = useRouter() // 路由对象
-
-const routerPath = ref(router.currentRoute.value.path) // 路由地址
-// 监听路由地址是否发生变化
-watch(
-    () => router.currentRoute.value,
-    newData => {
-        // console.log('路由地址发生变化')
-        // console.log(newData)
-        routerPath.value = newData.path
-    }
-)
+const routerPath = inject('routerPath') // 路由地址
 
 // 读图标
 const renderIcon = (icon, size, color) => {
@@ -115,8 +105,8 @@ const isHighlightMenu = (toRouterPath) => {
         <n-popover v-for="menu in mainMenus" :key="menu.label" placement="right" :show-arrow="false">
             <template #trigger>
                 <n-button style="width: 34px;padding: 0;" :quaternary="!isHighlightMenu(menu.to)"
-                    :type="isHighlightMenu(menu.to) ? 'primary' : 'default'"
-                    :tertiary="isHighlightMenu(menu.to)" @click="router.push(menu.to)">
+                    :type="isHighlightMenu(menu.to) ? 'primary' : 'default'" :tertiary="isHighlightMenu(menu.to)"
+                    @click="router.push(menu.to)">
                     <n-icon :size="menu.icon_size" :component="menu.icon"></n-icon>
                 </n-button>
             </template>

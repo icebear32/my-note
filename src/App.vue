@@ -1,5 +1,6 @@
 <script setup>
 import { storeToRefs } from 'pinia'
+import { useRouter } from "vue-router"
 import { onMounted, ref, provide } from "vue"
 import RootViewVue from './views/RootView.vue'
 import { useUserStore } from "@/stores/userStore"
@@ -15,6 +16,26 @@ const { theme } = storeToRefs(themeStore)
 // 用户的共享资源
 const userStore = useUserStore()
 
+// ===== 路由地址发生变化 =====
+// 路由对象
+const router = useRouter() // 路由对象
+
+const routerPath = ref(router.currentRoute.value.path) // 路由地址
+
+// 监听路由地址是否发生变化
+watch(
+    () => router.currentRoute.value,
+    newData => {
+        // console.log('路由地址发生变化')
+        // console.log(newData)
+        routerPath.value = newData.path
+    }
+)
+
+// 为后代提供路由地址的数据
+provide('routerPath', routerPath)
+
+// =====  =====
 // 是否需要重新加载页面
 const needReload = ref(false)
 
