@@ -179,3 +179,21 @@ const saveNote = async () => {
         </n-card>
     </n-space>
 </template>
+
+<style>
+/* 编辑器右下角的 logo 需要隐藏 */
+.ck.ck-balloon-panel.ck-balloon-panel_visible {
+    display: none;
+}
+
+/* 去掉编辑器的边框 */
+.ck.ck-editor__editable_inline {
+    border: none;
+}
+
+/* 编辑器聚焦时,去掉边框和盒子阴影 */
+.ck.ck-editor__editable.ck-focused:not(.ck-editor__nested-editable) {
+    border: none;
+    box-shadow: none;
+}
+</style>
