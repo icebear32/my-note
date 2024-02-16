@@ -8,14 +8,21 @@ import { useUserStore } from '@/stores/userStore'
 export const getUserToken = async () => {
     const { token } = useUserStore() // 用户 store 对象中的重置用户信息的函数
     // const token = localStorage.getItem("userToken") // 获取本地存储中的 userToken 的值
-    if (token === null) {
-        // 未登录
-        const { changeLoginModalShowStatus } = useLoginModalStore() // 改变登录窗口显示的函数
-        await changeLoginModalShowStatus(true) // 弹出登录窗口（结束）
-        throw "未登录"
-    } else {
-        return token
-    }
+    // if (token === null) {
+    //     // 未登录
+    //     const { changeLoginModalShowStatus } = useLoginModalStore() // 改变登录窗口显示的函数
+    //     await changeLoginModalShowStatus(true) // 弹出登录窗口（结束）
+    //     throw "未登录"
+    // } else {
+    //     return token
+    // }
+
+    // 更改
+    // token 有值则直接返回
+    if (token) return token
+    // token 无值，则弹出登录窗口
+    const {changeLoginModalShowStatus} = useLoginModalStore() // 改变登录窗口显示的函数
+    await changeLoginModalShowStatus(true) // 弹出登录窗口（结束）
 }
 
 /**
