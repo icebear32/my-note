@@ -3,7 +3,6 @@ import { ref } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { disabledBtn } from '@/utils/disabledBtn'
 import { useMessage, useLoadingBar } from 'naive-ui'
-import { noteBaseRequest } from "@/request/note_request"
 import { useLoginModalStore } from "@/stores/loginModalStore"
 import { EmailOutlined, LockOpenOutlined } from '@vicons/material'
 import noteServeRequest from "@/request"

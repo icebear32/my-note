@@ -4,6 +4,8 @@ import { disabledBtn } from '@/utils/disabledBtn'
 import { useMessage, useLoadingBar } from 'naive-ui'
 import { noteBaseRequest } from "@/request/note_request"
 import { EmailOutlined, LockOpenOutlined, FormatColorResetFilled } from '@vicons/material'
+import noteServeRequest from "@/request"
+import mailApi from '@/request/api/mailApi'
 
 // 自定义事件
 const emits = defineEmits(['changeStep'])
@@ -81,7 +83,7 @@ const toRegister = (e) => {
                 loadingBar.error() // 加载条异常
                 message.error("注册请求失败") // 发送登录请求失败的通知
                 disabledBtn(registerBtnDisabled, false, true, 2.5) // 解除禁用注册按钮
-                
+
                 throw "发送注册请求失败"
             })
 
@@ -143,44 +145,27 @@ const resetButtonCountDownStatus = () => {
 
 
 // 获取验证码
-const getEmailVC = () => {
-    registerFormRef.value?.validate(
-        async (errors) => {
-            if (!errors) {
-                buttonCountDown() //按钮倒计时
-                loadingBar.start() // 加载条开始
-                /* 发送获取邮箱注册验证码的请求 */
-                const { data: responseData } = await noteBaseRequest.get(
-                    "mail/register/vc",
-                    {
-                        params: {
-                            email: registerFormValue.value.email
-                        }
-                    }
-                ).catch(() => {
-                    // 发送请求失败（404，500，400，...）
-                    loadingBar.error() // 加载条异常
-                    message.error("发送登录请求失败") // 发送验证码请求失败的通知
-                })
-
-                // 得到服务器返回的数据，进行处理
-                console.log(responseData)
-                if (responseData.success) {
-                    loadingBar.finish() // 加载条结束
-                    message.success(responseData.message) // 显示发送成功的通知
-                    emailVcKey.value = responseData.data
-                } else {
-                    loadingBar.error() // 加载条异常结束 
-                    message.error(responseData.message) // 显示发送失败的通知
-                    disabledBtn(registerBtnDisabled, false, true, 2.5) // 解除禁用注册按钮
-                }
-
-            }
+const getEmailVC = async () => {
+    // 表单验证（只验证邮箱输入框规则）
+    await registerFormRef.value?.validate(
+        async errors => {
+            if (errors) throw "表单验证失败"
         },
-        (rule) => {
-            return rule?.key === "mail"
-        }
+        (rule) => rule?.key === "mail"
     )
+
+    // 按钮倒计时
+    buttonCountDown()
+    // 获取请求的 Api
+    let API = { ...mailApi.getRegisterVC }
+    // 封装 URL 的参数
+    API.params = { email: registerFormValue.value.email }
+    // 发送请求
+    noteServeRequest(API).then(responseData => {
+        if (!responseData) return
+        // 存储查询验证码的关键词
+        emailVcKey.value = responseData.data
+    })
 }
 </script>
 
