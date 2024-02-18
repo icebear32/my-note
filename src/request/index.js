@@ -33,7 +33,7 @@ const requestError = error => {
     // 采用消息块展示失败的原因
     message.error("发送" + error.config.name + "请求失败")
     // 返回失败原因
-    return Promise.reject(error)
+    // return Promise.reject(error)
 }
 
 /**
@@ -50,9 +50,8 @@ const requestResponse = response => {
         // 弹出失败的原因
         message.error(responseData.message)
         // 判断是否未登录失效 -- 如果则是弹出登录的窗口
-        if (responseData.code === "L_008") {
-            loginInvalid(true) // 登录失效
-        }
+        if (responseData.code === "L_008") loginInvalid(true) // 登录失效
+        // 无数据返回给调用者
         return null
     }
     // 加载条正常结束
@@ -71,10 +70,10 @@ export const noteServeRequest = axios.create({
 })
 
 // 请求拦截器
-noteServeRequest.interceptors.request.use(config => request(error), error => requestError(error))
+noteServeRequest.interceptors.request.use(config => request(config), error => requestError(error))
 
 // 响应拦截器
-noteServeRequest, interceptors.response.use(response => requestResponse(response), error => requestError(error))
+noteServeRequest.interceptors.response.use(response => requestResponse(response), error => requestError(error))
 
 // 导出请求对象
 export default noteServeRequest

@@ -6,6 +6,8 @@ import { useMessage, useLoadingBar } from 'naive-ui'
 import { noteBaseRequest } from "@/request/note_request"
 import { useLoginModalStore } from "@/stores/loginModalStore"
 import { EmailOutlined, LockOpenOutlined } from '@vicons/material'
+import noteServeRequest from "@/request"
+import userApi from '@/request/api/userApi'
 
 // 消息对象
 const message = useMessage()
@@ -69,55 +71,43 @@ const loginFormRef = ref(null)
 const loginBtnDisabled = ref(null)
 
 // 点击登录按钮去登录
-const toLogin = (e) => {
+const toLogin = async (e) => {
+    // 取消默认行为
     e.preventDefault()
-    loginFormRef.value?.validate(async (errors) => {
-        if (!errors) {
-            loadingBar.start() // 加载条开始
-            // loginBtnDisabled.value = true // 禁用登录按钮
-            disabledBtn(loginBtnDisabled, true) // 禁用登录按钮
 
-            // 发送登录请求
-            const { data: responseData } = await noteBaseRequest.post(
-                "/user/login/email/password",
-                {
-                    email: loginFormValue.value.email,
-                    password: loginFormValue.value.password
-                }
-            ).catch(() => {
-                // 发送请求失败（404，500，400，...）
-                loadingBar.error() // 加载条异常
-                message.error("发送登录请求失败") // 发送登录请求失败的通知
-                disabledBtn(loginBtnDisabled, false, true, 2.5) // 解除禁用登录按钮
-
-                throw "发送登录请求失败"
-            })
-
-            // 得到服务器返回的数据，进行处理
-            // console.log(responseData)
-            disabledBtn(loginBtnDisabled, false, true, 2.5) // 解除禁用登录按钮
-            if (responseData.success) {
-                loadingBar.finish() // 加载条结束
-                message.success(responseData.message) // 显示登录成功的通知
-                changeLoginModalShowStatus(false) // 关闭登录模态框
-                
-                // localStorage.setItem("userToken", responseData.data.userToken) // 将查询 redis 中的用户关键词存到本地存储中
-                const user = responseData.data.user; // 登录的用户信息
-                setUserInfo(
-                    responseData.data.userToken,
-                    user.id,
-                    user.email,
-                    user.nickname,
-                    user.headPic,
-                    user.level,
-                    user.time
-                )
-            } else {
-                loadingBar.error() // 加载条异常结束 
-                message.error(responseData.message) // 显示登录失败的通知 
-            }
-        }
+    // 表单验证
+    await loginFormRef.value?.validate(async (errors) => {
+        if (errors) throw "表单验证失败"
     })
+    // 禁用登录按钮
+    disabledBtn(loginBtnDisabled, true)
+    // 获取请求的 API
+    let API = { ...userApi.loginEmailPassword }
+    // 封装请求体中（data）的参数
+    API.data = {
+        email: loginFormValue.value.email,
+        password: loginFormValue.value.password
+    }
+    // 发送请求
+    await noteServeRequest(API).then(responseData => {
+        if (!responseData) return
+        // 关闭登录模态框
+        changeLoginModalShowStatus(false)
+        // 登录的用户信息
+        const user = responseData.data.user;
+        setUserInfo(
+            responseData.data.userToken,
+            user.id,
+            user.email,
+            user.nickname,
+            user.headPic,
+            user.level,
+            user.time
+        )
+    })
+
+    // 解除禁用登录按钮
+    disabledBtn(loginBtnDisabled, false, true, 2.5)
 }
 </script>
 
