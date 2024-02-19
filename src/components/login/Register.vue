@@ -1,12 +1,16 @@
 <script setup>
 import { ref } from 'vue'
 import { disabledBtn } from '@/utils/disabledBtn'
-import { useMessage, useLoadingBar } from 'naive-ui'
-import { noteBaseRequest } from "@/request/note_request"
-import { EmailOutlined, LockOpenOutlined, FormatColorResetFilled } from '@vicons/material'
+import { EmailOutlined } from '@vicons/material'
 import noteServeRequest from "@/request"
 import mailApi from '@/request/api/mailApi'
+import userApi from '@/request/api/userApi'
+import { useMessage } from 'naive-ui'
 
+// 消息对象
+const message = useMessage()
+// 验证码查询的关键词
+const emailVcKey = ref('')
 // 自定义事件
 const emits = defineEmits(['changeStep'])
 // 注册表单值
@@ -50,66 +54,42 @@ const registerFormRef = ref(null)
 // 是否禁用注册按钮
 const registerBtnDisabled = ref(false)
 // 点击注册按钮去注册
-const toRegister = (e) => {
+const toRegister = async e => {
+    // 取消默认行为
     e.preventDefault()
-    registerFormRef.value?.validate(async (errors) => {
-        if (!errors) {
-            // 是否获取验证码
-            const vcKey = emailVcKey.value
-            if (vcKey === '' || vcKey === null) {
-                throw message.error("请先获取验证码")
-            }
-            // 判断接收验证码的邮箱是否和注册的邮箱一致
-            const vc_email = vcKey.split(":")[1] // 接收验证码的邮箱
-            const email = registerFormValue.value.email // 注册账号的邮箱
-            if (email !== vc_email) {
-                throw message.error("注册邮箱号发生变化，请重新获取")
-            }
-
-            loadingBar.start() // 加载条开始
-            // registerBtnDisabled.value = true // 禁用注册按钮
-            disabledBtn(registerBtnDisabled, true) // 禁用注册按钮
-
-            // 发送注册请求
-            const { data: responseData } = await noteBaseRequest.post(
-                "/user/register/email",
-                {
-                    email,
-                    vc: registerFormValue.value.vc,
-                    vcKey
-                }
-            ).catch(() => {
-                // 发送请求失败（404，500，400，...）
-                loadingBar.error() // 加载条异常
-                message.error("注册请求失败") // 发送登录请求失败的通知
-                disabledBtn(registerBtnDisabled, false, true, 2.5) // 解除禁用注册按钮
-
-                throw "发送注册请求失败"
-            })
-
-            // 得到服务器返回的数据，进行处理
-            console.log(responseData)
-            if (responseData.success) {
-                loadingBar.finish() // 加载条结束
-                emits('changeStep', 3) // 跳转至注册成功界面
-            } else {
-                loadingBar.error() // 加载条异常结束 
-                message.error(responseData.message) // 显示注册失败的通知 
-                setTimeout(() => {
-                    registerBtnDisabled.value = false // 解除禁用注册按钮
-                }, 2500)
-            }
-        }
+    // 验证表单
+    await registerFormRef.value?.validate(errors => {
+        if (errors) throw "表单验证失败"
     })
+
+    // 判断是否获取验证码
+    const vcKey = emailVcKey.value
+    if (vcKey === '' || vcKey === null) throw message.error("请先获取验证码")
+
+    // 判断接收验证码的邮箱是否和注册的邮箱一致
+    const vc_email = vcKey.split(":")[1] // 接收验证码的邮箱
+    const email = registerFormValue.value.email // 注册账号的邮箱
+    if (email !== vc_email) throw message.error("注册邮箱号发生变化，请重新获取")
+
+    // 禁用注册按钮
+    disabledBtn(registerBtnDisabled, true)
+
+    // 获取请求的 API
+    let API = { ...userApi.emailRegister }
+    // 封装请求体（data）的参数
+    API.data = { email, vc: registerFormValue.value.vc, vcKey }
+    // 发送请求
+    await noteServeRequest(API).then(responseData => {
+        if (!responseData) return
+        // 跳转至注册成功界面
+        emits('changeStep', 3)
+    })
+
+    // 解除禁用注册按钮
+    disabledBtn(registerBtnDisabled, false, true, 2.5)
 }
 
 // ----- 获取验证码 -----
-// 消息对象
-const message = useMessage()
-// 加载条对象
-const loadingBar = useLoadingBar()
-// 验证码查询的关键词
-const emailVcKey = ref('')
 // 按钮状态
 const btnCountDown = ref({
     text: '获取验证码', // 按钮显示的文本
@@ -143,12 +123,11 @@ const resetButtonCountDownStatus = () => {
     btnCountDown.value.disabled = false
 }
 
-
 // 获取验证码
 const getEmailVC = async () => {
     // 表单验证（只验证邮箱输入框规则）
     await registerFormRef.value?.validate(
-        async errors => {
+        errors => {
             if (errors) throw "表单验证失败"
         },
         (rule) => rule?.key === "mail"

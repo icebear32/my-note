@@ -2,16 +2,10 @@
 import { ref } from 'vue'
 import { useUserStore } from '@/stores/userStore'
 import { disabledBtn } from '@/utils/disabledBtn'
-import { useMessage, useLoadingBar } from 'naive-ui'
 import { useLoginModalStore } from "@/stores/loginModalStore"
 import { EmailOutlined, LockOpenOutlined } from '@vicons/material'
 import noteServeRequest from "@/request"
 import userApi from '@/request/api/userApi'
-
-// 消息对象
-const message = useMessage()
-// 加载条对象
-const loadingBar = useLoadingBar()
 
 // 自定义事件
 const emits = defineEmits(['changeStep'])
@@ -75,7 +69,7 @@ const toLogin = async (e) => {
     e.preventDefault()
 
     // 表单验证
-    await loginFormRef.value?.validate(async (errors) => {
+    await loginFormRef.value?.validate((errors) => {
         if (errors) throw "表单验证失败"
     })
     // 禁用登录按钮
